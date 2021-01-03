@@ -14,43 +14,67 @@
 </head>
 <body>
 <div class="container">
-    <div class="row text-center">
-        <div class="col">
+    <div class="row">
+        <div class="col-2">
             Settings
 
             <form id="settings">
-                <div class="form-group" id="checkboxes">
+            <label for="types">Types:</label>
+            <div class="form-group" id="types">
 
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="openings" name="t-op"{% if openings %} checked{% endif %}>
-                        <label class="form-check-label" for="openings">Openings</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="endings" name="t-ed"{% if endings %} checked{% endif %}>
-                        <label class="form-check-label" for="endings">Endings</label>
-                    </div>
-
-                </div>
-                <div class="form-group">
-                    <label for="user">Name:</label>
-                    {% for user in users %}
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="user" name="user" value="{{ user }}" required>
-                            <button class="btn" type="button"
-                                    onclick="removeUser(this)">X</button>
+                        <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="type-openings" name="t-op" {% if openings %}checked{% endif %}>
+                        <label class="form-check-label" for="type-openings">Openings</label>
                         </div>
-                    {% endfor %}
-                    <button id="addUserBtn" class="btn" type="button" onclick="addUser()">+</button>
+
+                        <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="type-endings" name="t-ed" {% if endings %}checked{% endif %}>
+                        <label class="form-check-label" for="type-endings">Endings</label>
+                        </div>
+
+            </div>
+
+            <label for="lists">Lists:</label>
+            <div class="form-group" id="lists">
+                <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="list-watched" name="l-wd" checked>
+                        <label class="form-check-label" for="list-watched">Watched</label>
                 </div>
+                <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="list-ptw" name="l-ptw" checked>
+                        <label class="form-check-label" for="list-ptw">Plan to watch</label>
+                </div>
+                <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="list-watching" name="l-wg" checked>
+                        <label class="form-check-label" for="list-watching">Watching</label>
+                </div>
+                <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="list-on-hodl" name="l-oh" checked>
+                        <label class="form-check-label" for="list-on-hodl">On hold</label>
+                </div>
+                <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="list-dropped" name="l-dp" checked>
+                        <label class="form-check-label" for="list-dropped">Dropped</label>
+                </div>
+            </div>
 
-                <input type="hidden" name="default" value="no">
+             <div class="form-group">
+               <label for="user">Name:</label>
+                 {% for user in users %}
+                     <div class="input-group">
+                        <input type="text" class="form-control user-field" id="user" name="user" value="{{ user }}" required>
+                        <button class="btn" type="button"
+                            onclick="removeUser(this)">X</button>
+                     </div>
+                 {% endfor %}
+                <button id="addUserBtn" class="btn" type="button" onclick="addUser()">+</button>
+             </div>
 
-                <button class="btn" type="submit">Play!</button>
+                 <button class="btn" type="submit">Play!</button>
             </form>
         </div>
 
-        <div class="col-10">
+        <div class="col-8 text-center">
             <video id="player" width="1000 " height="600" autoplay>
                 <source src="{{ theme.url }}" type="video/webm">
             </video>

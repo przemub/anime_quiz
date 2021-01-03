@@ -11,6 +11,7 @@
 
 #player {
     visibility: hidden;
+    width: 100%;
 }
 
 #checkboxes label {
