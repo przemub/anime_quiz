@@ -1,3 +1,5 @@
 Django~=3.1.4
-animethemes-dl~=2.2.0
 uWSGI~=2.0.19.1
+
+# animethemes-dl~=2.2.0
+git+https://github.com/przemub/animethemes-dl@strptime-disable
