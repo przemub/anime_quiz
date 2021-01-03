@@ -38,8 +38,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }).catch(() => {
             count.innerText = "Enable Autoplay (in the address bar) and press Play!";
        });
-
-        setTimeout(step, 1000);
     }
 
 
