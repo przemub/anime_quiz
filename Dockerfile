@@ -6,6 +6,11 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+
+RUN python manage.py collectstatic
+
 CMD uwsgi --ini uwsgi.cfg
-EXPOSE 8000
+
+# Expose uwsgi socket and HTTP
+EXPOSE 1234, 8000
 
