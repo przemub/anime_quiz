@@ -27,9 +27,12 @@ class UserThemesView(View):
         if themes_cache is not None:
             return themes_cache
 
-        print(ANIMETHEMES_OPTIONS["statuses"])
         ANIMETHEMES_OPTIONS["statuses"] = statuses
-        print(ANIMETHEMES_OPTIONS["statuses"])
+
+        for key in ANIMETHEMES_OPTIONS["filter"]:
+            ANIMETHEMES_OPTIONS["filter"][key] = None
+        ANIMETHEMES_OPTIONS["filter"]['resolution'] = 0
+
         themes = parsers.get_download_data(user)
         cache.set(key, themes)
 
@@ -71,6 +74,7 @@ class UserThemesView(View):
             return False
 
         themes = list(filter(check_if_right_type, themes))
+        print(len(themes))
 
         theme = random.choice(themes)
 
