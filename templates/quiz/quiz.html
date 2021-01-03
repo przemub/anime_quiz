@@ -10,7 +10,12 @@
     <script>
         function addUser(){
             document.getElementById("addUserBtn").insertAdjacentHTML('beforebegin',
-            '<input type="text" class="form-control" id="user" name="user" value="">')
+            '<div class="input-group"><input type="text" class="form-control" id="user" name="user" required>\n' +
+                '                        <button class="btn" type="button"\n' +
+                '                            onclick="removeUser(this)">X</button></div>')
+        }
+        function removeUser(element){
+            element.parentNode.parentNode.removeChild(element.parentNode)
         }
     </script>
 
@@ -29,6 +34,15 @@
         #player {
             visibility: hidden;
         }
+
+        #checkboxes label {
+              float: left;
+        }
+        #checkboxes ul {
+              margin: 0;
+              list-style: none;
+              float: left;
+        }
     </style>
 </head>
 <body>
@@ -37,15 +51,33 @@
         <div class="col">
             Settings
 
-            <form id="users">
+            <form id="settings">
+            <div class="form-group" id="checkboxes">
+
+                        <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="openings" name="openings" checked>
+                        <label class="form-check-label" for="openings">Openings</label>
+                        </div>
+
+                        <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="endings" name="endings" checked>
+                        <label class="form-check-label" for="endings">Endings</label>
+                        </div>
+
+            </div>
              <div class="form-group">
                <label for="user">Name:</label>
                  {% for user in users %}
-               <input type="text" class="form-control" id="user" name="user" value="{{ user }}">
+                     <div class="input-group">
+                        <input type="text" class="form-control" id="user" name="user" value="{{ user }}" required>
+                        <button class="btn" type="button"
+                            onclick="removeUser(this)">X</button>
+                     </div>
                  {% endfor %}
                 <button id="addUserBtn" class="btn" type="button" onclick="addUser()">+</button>
-                 <button class="btn" type="submit">Play!</button>
              </div>
+
+                 <button class="btn" type="submit">Play!</button>
             </form>
         </div>
 
