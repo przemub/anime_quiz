@@ -32,9 +32,12 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
-        player.play();
-        count.innerText = time.toString();
-        setTimeout(step, 1000);
+        player.play().then(() => {
+            count.innerText = time.toString();
+            setTimeout(step, 1000);
+        }).catch(() => {
+            count.innerText = "Enable Autoplay (in the address bar) and press Play!";
+        });
     }
 
 
@@ -72,8 +75,10 @@ function removePoint(element){
     current = Math.max(parseInt(current) - 1, 0);
     element.parentNode.getElementsByTagName("div")[0].innerText = current;
 }
+
 document.addEventListener("DOMContentLoaded", function () {
     sessionStorage.setItem("dupa", "dupa");
+    console.log("sraka")
     let results = document.getElementById("results");
     if (sessionStorage.getItem("results") !== "{}") {
         console.log(sessionStorage.getItem("results"))
