@@ -21,10 +21,36 @@ class UserThemesView(View):
 
     def get(self, request):
         users = request.GET.getlist("user", ["przemub"])
-        print(users)
-        theme = random.choice(self._get_user_themes(random.choice(users)))
-        print(theme)
+        themes = self._get_user_themes(random.choice(users))
+
+        default = request.GET.get("default", "yes") == "yes"
+        openings = default or request.GET.get("t-op", "off") == "on"
+        endings = default or request.GET.get("t-ed", "off") == "on"
+        print(default, openings, endings)
+
+        # Something must be enabled
+        if not (openings or endings):
+            openings, endings = True, True
+
+        def check_if_right_type(theme):
+            if openings and theme['metadata']['themetype'].startswith('OP'):
+                return True
+            if endings and theme['metadata']['themetype'].startswith('ED'):
+                return True
+            return False
+        themes = list(filter(check_if_right_type, themes))
+
+        theme = random.choice(themes)
 
         artists = ", ".join(theme['metadata']['artists'])
 
-        return render(request, 'quiz/quiz.html', {'theme': theme, 'artists': artists, 'users': users})
+        context = {
+            'theme': theme,
+            'artists': artists,
+            'users': users,
+            'openings': openings,
+            'endings': endings
+        }
+        print(context)
+
+        return render(request, 'quiz/quiz.html', context)
