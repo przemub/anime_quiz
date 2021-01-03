@@ -43,3 +43,44 @@ document.addEventListener("DOMContentLoaded", function() {
     player.addEventListener('waiting', () => { waiting = true; })
     player.addEventListener('playing', () => { waiting = false; })
 });
+
+function addPlayer(element){
+    li = document.createElement("li");
+    li.className = "list-group-item"
+    li.innerHTML = '<div class="input-group">\n' +
+        '                        <button class="btn" type="button" onclick="removePlayer(this)">X</button>\n' +
+        '                        <input type="text" class="form-control user-field" id="user">\n' +
+        '                        <button class="btn" type="button" onclick="addPoint(this)">+</button>\n' +
+        '                        <button class="btn" type="button" onclick="removePoint(this)">-</button>\n' +
+        '                    </div>';
+    element.parentNode.getElementsByClassName("list-group")[0].appendChild(li);
+}
+
+function removePlayer(element){
+    element.parentNode.parentNode.parentNode.removeChild(element.parentNode.parentNode)
+}
+
+function addPoint(element){
+    current = element.parentNode.getElementsByTagName("div")[0].innerText;
+    current = parseInt(current) + 1;
+    element.parentNode.getElementsByTagName("div")[0].innerText = current;
+}
+
+function removePoint(element){
+    current = element.parentNode.getElementsByTagName("div")[0].innerText;
+    current = Math.max(parseInt(current) - 1, 0);
+    element.parentNode.getElementsByTagName("div")[0].innerText = current;
+}
+window.onload = function () {
+    let results = document.getElementById("results");
+    if (sessionStorage.getItem("results") !== "{}") {
+        console.log(sessionStorage.getItem("results"))
+        results = JSON.parse(sessionStorage.getItem("results"));
+    }
+    console.log(results);
+
+    results.addEventListener("change", function () {
+        sessionStorage.setItem("results", JSON.stringify(results))
+    });
+    sessionStorage.setItem("dupa", "dupa");
+};

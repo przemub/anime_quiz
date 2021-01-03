@@ -78,8 +78,20 @@
             </div>
         </div>
 
-        <div class="col">
-            Results
+        <div class="col-2 text-left" id="results-list">
+            <label for="results">Results</label>
+            <ul class="list-group" id="results">
+                <li class="list-group-item">
+                    <div class="input-group">
+                        <button class="btn" type="button" onclick="removePlayer(this)">X</button>
+                        <input type="text" class="form-control user-field" id="user">
+                        <button class="btn" type="button" onclick="addPoint(this)">+</button>
+                        <button class="btn" type="button" onclick="removePoint(this)">-</button>
+                        <div id="points">0</div>
+                    </div>
+                </li>
+            </ul>
+            <button id="addUserBtn" class="btn" type="button" onclick="addPlayer(this)">+</button>
         </div>
     </div>
 </div>
