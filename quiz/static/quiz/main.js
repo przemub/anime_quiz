@@ -15,19 +15,31 @@ document.addEventListener("DOMContentLoaded", function() {
     const player = document.getElementById('player')
 
     let time = 9;
-    function step() {
-        if (time > 0) {
-            time--;
-            count.innerText = time.toString();
-            setTimeout(step, 1000);
+    let waiting = false; // True when waiting for data.
+
+    function play() {
+        function step() {
+            if (time > 0) {
+                if (!waiting)
+                    time--;
+                count.innerText = time.toString();
+                setTimeout(step, 1000);
+            }
+            else {
+                player.style.visibility = 'visible';
+                details.style.visibility = 'visible';
+                count.innerHTML = "";
+            }
         }
-        else {
-            player.style.visibility = 'visible';
-            details.style.visibility = 'visible';
-            count.innerHTML = "";
-        }
+
+        player.play();
+        count.innerText = time.toString();
+        setTimeout(step, 1000);
     }
 
-    player.addEventListener('play', step);
+
+    player.addEventListener('canplaythrough', play);
     player.addEventListener('ended', () => { location.reload(); });
+    player.addEventListener('waiting', () => { waiting = true; })
+    player.addEventListener('playing', () => { waiting = false; })
 });
