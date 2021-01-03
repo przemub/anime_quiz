@@ -36,26 +36,14 @@
 
             <label for="lists">Lists:</label>
             <div class="form-group" id="lists">
-                <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="list-watched" name="l-wd" checked>
-                        <label class="form-check-label" for="list-watched">Watched</label>
-                </div>
-                <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="list-ptw" name="l-ptw" checked>
-                        <label class="form-check-label" for="list-ptw">Plan to watch</label>
-                </div>
-                <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="list-watching" name="l-wg" checked>
-                        <label class="form-check-label" for="list-watching">Watching</label>
-                </div>
-                <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="list-on-hodl" name="l-oh" checked>
-                        <label class="form-check-label" for="list-on-hodl">On hold</label>
-                </div>
-                <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="list-dropped" name="l-dp" checked>
-                        <label class="form-check-label" for="list-dropped">Dropped</label>
-                </div>
+                {% for status in all_statuses %}
+                    {% if status %}
+                        <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="list-{{ forloop.counter }}" name="l-{{ forloop.counter }}" {% if forloop.counter in statuses %}checked{% endif %}>
+                                <label class="form-check-label" for="list-{{ forloop.counter }}">{{ status }}</label>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
 
              <div class="form-group">
