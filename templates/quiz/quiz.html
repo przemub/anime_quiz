@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
+    <script>
+        function addUser(){
+            document.getElementById("addUserBtn").insertAdjacentHTML('beforebegin',
+            '<input type="text" class="form-control" id="user" name="user" value="">')
+        }
+    </script>
+
+    <style>
+        #count {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        #details {
+            font-size: 30px;
+            font-weight: bold;
+            visibility: hidden;
+        }
+
+        #player {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row text-center">
+        <div class="col">
+            Settings
+
+            <form id="users">
+             <div class="form-group">
+               <label for="user">Name:</label>
+                 {% for user in users %}
+               <input type="text" class="form-control" id="user" name="user" value="{{ user }}">
+                 {% endfor %}
+                <button id="addUserBtn" class="btn" type="button" onclick="addUser()">+</button>
+                 <button class="btn" type="submit">Play!</button>
+             </div>
+            </form>
+        </div>
+
+        <div class="col-10">
+            <video id="player" width="1000 " height="600" autoplay>
+                <source src="{{ theme.url }}" type="video/webm">
+            </video>
+
+            <div id="info">
+                <span id="count">Loading…</span>
+                <div id="details">
+                    {{ theme.metadata.album }} {{ theme.metadata.themetype }}<br>{{ theme.metadata.title }}<br>
+                    {{ artists }}<br>
+                    <button onclick='location.reload()'>Next</button><br>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            Results
+        </div>
+    </div>
+</div>
+
+<script>
+    const count = document.getElementById('count');
+    const details = document.getElementById('details');
+    const player = document.getElementById('player')
+
+    let time = 9;
+    function step() {
+        if (time > 0) {
+            time--;
+            count.innerText = time.toString();
+            setTimeout(step, 1000);
+        }
+        else {
+            player.style.visibility = 'visible';
+            details.style.visibility = 'visible';
+            count.innerHTML = "";
+        }
+    }
+
+    player.addEventListener('play', step);
+</script>
+</body>
+</html>
