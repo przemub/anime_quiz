@@ -1,4 +1,4 @@
-import random
+import random as random_module
 
 import animethemes_dl.parsers as parsers
 from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS
@@ -7,9 +7,18 @@ from django.shortcuts import render
 from django.views.generic.base import View
 
 
+random = random_module.SystemRandom()
+
+
 class UserThemesView(View):
-    ALL_STATUSES = ['Watching', 'Completed', 'On-Hold', 'Dropped',
-     None, 'Plan to Watch']
+    ALL_STATUSES = [
+        "Watching",
+        "Completed",
+        "On-Hold",
+        "Dropped",
+        None,
+        "Plan to Watch",
+    ]
 
     def _get_user_themes(self, user, statuses):
         key = f"user_themes_{user}_{'-'.join(str(s) for s in statuses)}"
@@ -18,9 +27,9 @@ class UserThemesView(View):
         if themes_cache is not None:
             return themes_cache
 
-        print(ANIMETHEMES_OPTIONS['statuses'])
-        ANIMETHEMES_OPTIONS['statuses'] = statuses
-        print(ANIMETHEMES_OPTIONS['statuses'])
+        print(ANIMETHEMES_OPTIONS["statuses"])
+        ANIMETHEMES_OPTIONS["statuses"] = statuses
+        print(ANIMETHEMES_OPTIONS["statuses"])
         themes = parsers.get_download_data(user)
         cache.set(key, themes)
 
@@ -41,7 +50,7 @@ class UserThemesView(View):
             statuses = [1, 2]  # Watching, completed
         else:
             statuses = []
-            for i in range(1, len(self.ALL_STATUSES)+1):
+            for i in range(1, len(self.ALL_STATUSES) + 1):
                 if request.GET.get(f"l-{i}", "off") == "on":
                     statuses.append(i)
 
@@ -51,26 +60,31 @@ class UserThemesView(View):
         themes = self._get_user_themes(random.choice(users), statuses)
 
         def check_if_right_type(local_theme):
-            if openings and local_theme['metadata']['themetype'].startswith('OP'):
+            if openings and local_theme["metadata"]["themetype"].startswith(
+                "OP"
+            ):
                 return True
-            if endings and local_theme['metadata']['themetype'].startswith('ED'):
+            if endings and local_theme["metadata"]["themetype"].startswith(
+                "ED"
+            ):
                 return True
             return False
+
         themes = list(filter(check_if_right_type, themes))
 
         theme = random.choice(themes)
 
-        artists = ", ".join(theme['metadata']['artists'])
+        artists = ", ".join(theme["metadata"]["artists"])
 
         context = {
-            'theme': theme,
-            'artists': artists,
-            'users': users,
-            'openings': openings,
-            'endings': endings,
-            'statuses': statuses,
-            'all_statuses': self.ALL_STATUSES
+            "theme": theme,
+            "artists": artists,
+            "users": users,
+            "openings": openings,
+            "endings": endings,
+            "statuses": statuses,
+            "all_statuses": self.ALL_STATUSES,
         }
         print(context)
 
-        return render(request, 'quiz/quiz.html', context)
+        return render(request, "quiz/quiz.html", context)
