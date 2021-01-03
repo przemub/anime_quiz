@@ -32,8 +32,13 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
-        player.play();
-        count.innerText = time.toString();
+        player.play().then(() => {
+            count.innerText = time.toString();
+            setTimeout(step, 1000);
+        }).catch(() => {
+            count.innerText = "Enable Autoplay (in the address bar) and press Play!";
+       });
+
         setTimeout(step, 1000);
     }
 
