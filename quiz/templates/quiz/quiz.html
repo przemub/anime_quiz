@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,43 +8,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 
-    <script>
-        function addUser(){
-            document.getElementById("addUserBtn").insertAdjacentHTML('beforebegin',
-                '<div class="input-group"><input type="text" class="form-control" id="user" name="user" required>\n' +
-                '                        <button class="btn" type="button"\n' +
-                '                            onclick="removeUser(this)">X</button></div>')
-        }
-        function removeUser(element){
-            element.parentNode.parentNode.removeChild(element.parentNode)
-        }
-    </script>
+    <script type="text/javascript" src="{% static 'quiz/main.js' %}"></script>
 
-    <style>
-        #count {
-            font-size: 30px;
-            font-weight: bold;
-        }
-
-        #details {
-            font-size: 30px;
-            font-weight: bold;
-            visibility: hidden;
-        }
-
-        #player {
-            visibility: hidden;
-        }
-
-        #checkboxes label {
-            float: left;
-        }
-        #checkboxes ul {
-            margin: 0;
-            list-style: none;
-            float: left;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'quiz/main.css' %}">
 </head>
 <body>
 <div class="container">
@@ -103,27 +70,5 @@
         </div>
     </div>
 </div>
-
-<script>
-    const count = document.getElementById('count');
-    const details = document.getElementById('details');
-    const player = document.getElementById('player')
-
-    let time = 9;
-    function step() {
-        if (time > 0) {
-            time--;
-            count.innerText = time.toString();
-            setTimeout(step, 1000);
-        }
-        else {
-            player.style.visibility = 'visible';
-            details.style.visibility = 'visible';
-            count.innerHTML = "";
-        }
-    }
-
-    player.addEventListener('play', step);
-</script>
 </body>
 </html>
