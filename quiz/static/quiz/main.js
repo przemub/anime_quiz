@@ -29,4 +29,5 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     player.addEventListener('play', step);
+    player.addEventListener('ended', () => { location.reload(); });
 });
