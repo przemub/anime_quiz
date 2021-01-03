@@ -52,6 +52,7 @@ function addPlayer(element){
         '                        <input type="text" class="form-control user-field" id="user">\n' +
         '                        <button class="btn" type="button" onclick="addPoint(this)">+</button>\n' +
         '                        <button class="btn" type="button" onclick="removePoint(this)">-</button>\n' +
+        '                        <div id="points">0</div>' +
         '                    </div>';
     element.parentNode.getElementsByClassName("list-group")[0].appendChild(li);
 }
@@ -71,16 +72,17 @@ function removePoint(element){
     current = Math.max(parseInt(current) - 1, 0);
     element.parentNode.getElementsByTagName("div")[0].innerText = current;
 }
-window.onload = function () {
+document.addEventListener("DOMContentLoaded", function () {
+    sessionStorage.setItem("dupa", "dupa");
     let results = document.getElementById("results");
     if (sessionStorage.getItem("results") !== "{}") {
         console.log(sessionStorage.getItem("results"))
         results = JSON.parse(sessionStorage.getItem("results"));
     }
-    console.log(results);
+    console.log(JSON.stringify(results));
 
-    results.addEventListener("change", function () {
+    results.addEventListener("click", function () {
         sessionStorage.setItem("results", JSON.stringify(results))
+        console.log(JSON.stringify(results))
     });
-    sessionStorage.setItem("dupa", "dupa");
-};
+});
