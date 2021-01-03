@@ -31,11 +31,11 @@ class UserThemesView(View):
 
         default = request.GET.get("default", "yes") == "yes"
         openings = default or request.GET.get("t-op", "off") == "on"
-        endings = default or request.GET.get("t-ed", "off") == "on"
+        endings = request.GET.get("t-ed", "off") == "on"
 
         # Something must be enabled
         if not (openings or endings):
-            openings, endings = True, True
+            openings, endings = True, False
 
         if default:
             statuses = [1, 2]  # Watching, completed

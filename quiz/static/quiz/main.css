@@ -23,3 +23,23 @@
     list-style: none;
     float: left;
 }
+
+footer {
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    width: 100%;
+    padding: 1em;
+}
+
+a.navbar-brand {
+    margin-left: 0.5em;
+}
+
+img.icon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1;
+    width: 240px;
+}

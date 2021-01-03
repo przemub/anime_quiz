@@ -13,7 +13,17 @@
     <link rel="stylesheet" href="{% static 'quiz/main.css' %}">
 </head>
 <body>
-<div class="container">
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a class="navbar-brand" href="#">Anime Quiz</a>
+
+    <ul class="navbar-nav mr-auto">
+       <li class="nav-item active">
+         <a class="nav-link" href="mailto:quiz@quiz.moe">Suggestions?</a>
+       </li>
+    </ul>
+</nav>
+
+<main class="container">
     <div class="row">
         <div class="col-2">
             Settings
@@ -94,6 +104,11 @@
             <button id="addUserBtn" class="btn" type="button" onclick="addPlayer(this)">+</button>
         </div>
     </div>
-</div>
+</main>
+<footer class="bg-light text-center">
+    Made with <3 by <a href="https://prem.moe">prem.moe</a>. Hugs to <a href="https://animethemes.moe">animethemes.moe</a> team and <a href="https://github.com/thesadru/animethemes-dl">thesadru</a>.
+</footer>
+
+<img class="icon" src="{% static 'quiz/rem-ram.gif' %}" alt="Rem/Ram">
 </body>
 </html>
