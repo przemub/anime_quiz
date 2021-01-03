@@ -2,4 +2,4 @@ from django.urls import path
 
 from quiz.views import UserThemesView
 
-urlpatterns = [path("user", UserThemesView.as_view())]
+urlpatterns = [path("", UserThemesView.as_view())]
