@@ -90,18 +90,48 @@
 
         <div class="col-2 text-left" id="results-list">
             <label for="results">Results</label>
+            <div id="results-div">
             <ul class="list-group" id="results">
                 <li class="list-group-item">
                     <div class="input-group">
                         <button class="btn" type="button" onclick="removePlayer(this)">X</button>
-                        <input type="text" class="form-control user-field" id="user">
+                        <input type="text" class="form-control user-field player-field" id="user" value="Player 1">
+                        <button class="btn" type="button" onclick="addPoint(this)">+</button>
+                        <button class="btn" type="button" onclick="removePoint(this)">-</button>
+                        <div id="points">0</div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="input-group">
+                        <button class="btn" type="button" onclick="removePlayer(this)">X</button>
+                        <input type="text" class="form-control user-field player-field" id="user" value="Player 2">
+                        <button class="btn" type="button" onclick="addPoint(this)">+</button>
+                        <button class="btn" type="button" onclick="removePoint(this)">-</button>
+                        <div id="points">0</div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="input-group">
+                        <button class="btn" type="button" onclick="removePlayer(this)">X</button>
+                        <input type="text" class="form-control user-field player-field" id="user" value="Player 3">
+                        <button class="btn" type="button" onclick="addPoint(this)">+</button>
+                        <button class="btn" type="button" onclick="removePoint(this)">-</button>
+                        <div id="points">0</div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="input-group">
+                        <button class="btn" type="button" onclick="removePlayer(this)">X</button>
+                        <input type="text" class="form-control user-field player-field" id="user" value="Player 4">
                         <button class="btn" type="button" onclick="addPoint(this)">+</button>
                         <button class="btn" type="button" onclick="removePoint(this)">-</button>
                         <div id="points">0</div>
                     </div>
                 </li>
             </ul>
-            <button id="addUserBtn" class="btn" type="button" onclick="addPlayer(this)">+</button>
+            </div>
+            <button id="addPlayerBtn" class="btn" type="button" onclick="addPlayer(this)">+</button>
+            <button id="clearPlayerBtn" class="btn" type="button" onclick="clearPlayer(this)">Clear</button>
         </div>
     </div>
 </main>
