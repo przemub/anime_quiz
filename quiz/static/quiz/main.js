@@ -65,49 +65,8 @@ function removePlayer(element){
 }
 
 function clearPlayer(element){
-    element.parentNode.innerHTML = '<label for="results">Results</label>\n' +
-        '            <div id="results-div">\n' +
-        '            <ul class="list-group" id="results">\n' +
-        '                <li class="list-group-item">\n' +
-        '                    <div class="input-group">\n' +
-        '                        <button class="btn" type="button" onclick="removePlayer(this)">X</button>\n' +
-        '                        <input type="text" class="form-control user-field" id="user" value="Player 1">\n' +
-        '                        <button class="btn" type="button" onclick="addPoint(this)">+</button>\n' +
-        '                        <button class="btn" type="button" onclick="removePoint(this)">-</button>\n' +
-        '                        <div id="points">0</div>\n' +
-        '                    </div>\n' +
-        '                </li>\n' +
-        '                <li class="list-group-item">\n' +
-        '                    <div class="input-group">\n' +
-        '                        <button class="btn" type="button" onclick="removePlayer(this)">X</button>\n' +
-        '                        <input type="text" class="form-control user-field" id="user" value="Player 2">\n' +
-        '                        <button class="btn" type="button" onclick="addPoint(this)">+</button>\n' +
-        '                        <button class="btn" type="button" onclick="removePoint(this)">-</button>\n' +
-        '                        <div id="points">0</div>\n' +
-        '                    </div>\n' +
-        '                </li>\n' +
-        '                <li class="list-group-item">\n' +
-        '                    <div class="input-group">\n' +
-        '                        <button class="btn" type="button" onclick="removePlayer(this)">X</button>\n' +
-        '                        <input type="text" class="form-control user-field" id="user" value="Player 3">\n' +
-        '                        <button class="btn" type="button" onclick="addPoint(this)">+</button>\n' +
-        '                        <button class="btn" type="button" onclick="removePoint(this)">-</button>\n' +
-        '                        <div id="points">0</div>\n' +
-        '                    </div>\n' +
-        '                </li>\n' +
-        '                <li class="list-group-item">\n' +
-        '                    <div class="input-group">\n' +
-        '                        <button class="btn" type="button" onclick="removePlayer(this)">X</button>\n' +
-        '                        <input type="text" class="form-control user-field" id="user" value="Player 4">\n' +
-        '                        <button class="btn" type="button" onclick="addPoint(this)">+</button>\n' +
-        '                        <button class="btn" type="button" onclick="removePoint(this)">-</button>\n' +
-        '                        <div id="points">0</div>\n' +
-        '                    </div>\n' +
-        '                </li>\n' +
-        '            </ul>\n' +
-        '            </div>\n' +
-        '            <button id="addPlayerBtn" class="btn" type="button" onclick="addPlayer(this)">+</button>\n' +
-        '            <button id="clearPlayerBtn" class="btn" type="button" onclick="clearPlayer(this)">+</button>';
+    sessionStorage.removeItem('results');
+    element.parentNode.getElementsByTagName('div')[0].innerHTML = document.getElementById('results-template').innerHTML;
 }
 
 function addPoint(element){
@@ -121,11 +80,16 @@ function removePoint(element){
     current = Math.max(parseInt(current) - 1, 0);
     element.parentNode.getElementsByTagName("div")[0].innerText = current;
 }
+
 document.addEventListener("DOMContentLoaded", function () {
     const results = document.getElementById("results-div");
 
     if (sessionStorage.getItem("results") !== null) {
         results.innerHTML = sessionStorage.getItem("results");
+    }
+    else {
+        results.innerHTML = document.getElementById('results-template').innerHTML;
+        console.log(results.outerHTML)
     }
     sessionStorage.setItem("results", results.innerHTML);
 
@@ -133,4 +97,10 @@ document.addEventListener("DOMContentLoaded", function () {
         sessionStorage.setItem("results", results.innerHTML);
     });
     observer.observe(results, {attributes: true, childList: true, subtree: true, characterData: true});
+
+    for(let playerField of document.getElementsByClassName('form-control user-field player-field')){
+        playerField.onchange = function (value){
+            playerField.outerHTML = playerField.outerHTML.replace(/value=".*"/, 'value="'+playerField.value+'"');
+        };
+    }
 });
