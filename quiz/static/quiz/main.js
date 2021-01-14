@@ -1,3 +1,9 @@
+Object.defineProperty(HTMLMediaElement.prototype, 'playing', {
+    get: function(){
+        return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
+    }
+})
+
 function addUser() {
     document.getElementById("addUserBtn").insertAdjacentHTML('beforebegin',
         '<div class="input-group"><input type="text" class="form-control" id="user" name="user" required>\n' +
@@ -18,9 +24,11 @@ document.addEventListener("DOMContentLoaded", function() {
     let waiting = false; // True when waiting for data.
 
     function play() {
+        player.removeEventListener('canplaythrough', play);
+
         function step() {
             if (time > 0) {
-                if (!waiting)
+                if (player.playing)
                     time--;
                 count.innerText = time.toString();
                 setTimeout(step, 1000);
