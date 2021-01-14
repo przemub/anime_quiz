@@ -11,48 +11,6 @@
     <script type="text/javascript" src="{% static 'quiz/main.js' %}"></script>
 
     <link rel="stylesheet" href="{% static 'quiz/main.css' %}">
-
-    <template id="results-template">
-        <ul class="list-group" id="results">
-            <li class="list-group-item">
-                <div class="input-group">
-                    <button class="btn" type="button" onclick="removePlayer(this)">X</button>
-                    <input type="text" class="form-control user-field player-field" id="user" value="Player 1">
-                    <button class="btn" type="button" onclick="addPoint(this)">+</button>
-                    <button class="btn" type="button" onclick="removePoint(this)">-</button>
-                    <div id="points">0</div>
-                </div>
-            </li>
-            <li class="list-group-item">
-                <div class="input-group">
-                    <button class="btn" type="button" onclick="removePlayer(this)">X</button>
-                    <input type="text" class="form-control user-field player-field" id="user" value="Player 2">
-                    <button class="btn" type="button" onclick="addPoint(this)">+</button>
-                    <button class="btn" type="button" onclick="removePoint(this)">-</button>
-                    <div id="points">0</div>
-                </div>
-            </li>
-            <li class="list-group-item">
-                <div class="input-group">
-                    <button class="btn" type="button" onclick="removePlayer(this)">X</button>
-                    <input type="text" class="form-control user-field player-field" id="user" value="Player 3">
-                    <button class="btn" type="button" onclick="addPoint(this)">+</button>
-                    <button class="btn" type="button" onclick="removePoint(this)">-</button>
-                    <div id="points">0</div>
-                </div>
-            </li>
-        <li class="list-group-item">
-            <div class="input-group">
-                <button class="btn" type="button" onclick="removePlayer(this)">X</button>
-                <input type="text" class="form-control user-field player-field" id="user" value="Player 4">
-                <button class="btn" type="button" onclick="addPoint(this)">+</button>
-                <button class="btn" type="button" onclick="removePoint(this)">-</button>
-                <div id="points">0</div>
-            </div>
-        </li>
-        </ul>
-    </template>
-
 </head>
 <body>
 <nav class="navbar navbar-expand-md navbar-light bg-light">
@@ -145,5 +103,7 @@
 </footer>
 
 <img class="icon" src="{% static 'quiz/rem-ram.gif' %}" alt="Rem/Ram" id="remram">
+
+{% include 'quiz/results_template.html' %}
 </body>
 </html>
