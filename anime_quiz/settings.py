@@ -143,10 +143,13 @@ STATIC_URL = "/static/"
 STATIC_ROOT = "static/"
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': '/tmp/anime_quiz_cache',
-        'TIMEOUT': 60*60*24
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "quiz_cache"
     }
 }
 
