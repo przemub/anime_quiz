@@ -42,6 +42,10 @@ LOGGING = {
             "handlers": ["console"],
             "level": "INFO",
         },
+        "animethemes-dl": {
+            "handlers": ["console"],
+            "level": "INFO"
+        }
     },
 }
 
@@ -145,3 +149,7 @@ CACHES = {
         'TIMEOUT': 60*60*24
     }
 }
+
+CELERY_TIMEZONE = "Europe/London"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 60 * 60 * 6
