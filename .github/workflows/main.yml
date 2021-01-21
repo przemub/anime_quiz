@@ -50,4 +50,4 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd ${{ secrets.DIRECTORY }}
-            docker-compose exec anime_quiz python manage.py collectstatic --no-input
+            docker-compose exec -T anime_quiz python manage.py collectstatic --no-input
