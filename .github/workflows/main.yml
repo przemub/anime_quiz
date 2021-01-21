@@ -21,16 +21,6 @@ jobs:
           script: |
             cd ${{ secrets.DIRECTORY }}
             git pull
-      - name: Collect static files
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            cd ${{ secrets.DIRECTORY }}
-            python3 manage.py collectstatic --no-input
       - name: Build Docker images
         uses: appleboy/ssh-action@master
         with:
@@ -40,7 +30,7 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd ${{ secrets.DIRECTORY }}
-            docker-compose build anime_quiz
+            docker-compose build
       - name: Ensure the containers are started
         uses: appleboy/ssh-action@master
         with:
@@ -50,4 +40,14 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd ${{ secrets.DIRECTORY }}
-            docker-compose up -d anime_quiz
+            docker-compose up -d
+      - name: Collect static files
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.DIRECTORY }}
+            docker-compose exec anime_quiz python manage.py collectstatic

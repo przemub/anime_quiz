@@ -11,6 +11,8 @@ services:
       - 8009:8009
     depends_on:
       - celery_worker
+    volumes:
+      - ./static:/usr/src/app/static:rw
     restart: unless-stopped
   celery_worker:
     build:
