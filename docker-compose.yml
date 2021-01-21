@@ -25,6 +25,9 @@ services:
     restart: unless-stopped
   redis:
     image: redis:6.0
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
     networks:
       - anime_quiz
     restart: unless-stopped
@@ -33,3 +36,7 @@ networks:
   server:
     external: true
   anime_quiz:
+
+volumes:
+  redis_data:
+
