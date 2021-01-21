@@ -32,7 +32,7 @@ class GetUserThemesTask(app.Task):
         ANIMETHEMES_OPTIONS["statuses"] = statuses
 
         themes = parsers.get_download_data(user)
-        cache.set(key, themes)
+        cache.set(key, themes, 60 * 60 * 24 * 30)
 
         return themes
 
