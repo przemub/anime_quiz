@@ -1,13 +1,17 @@
 import random as random_module
 
-import animethemes_dl.parsers as parsers
-from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS
 from django.core.cache import cache
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic.base import View
 
+from .tasks import GetUserThemesTask
 
 random = random_module.SystemRandom()
+
+
+class TaskStatus(Exception):
+    pass
 
 
 class UserThemesView(View):
@@ -22,21 +26,16 @@ class UserThemesView(View):
 
     def _get_user_themes(self, user, statuses):
         key = f"user_themes_{user}_{'-'.join(str(s) for s in statuses)}"
-        print(key)
+        started_key = f"started_user_themes_{user}_{'-'.join(str(s) for s in statuses)}"
         themes_cache = cache.get(key, None)
         if themes_cache is not None:
             return themes_cache
 
-        ANIMETHEMES_OPTIONS["statuses"] = statuses
-
-        for key in ANIMETHEMES_OPTIONS["filter"]:
-            ANIMETHEMES_OPTIONS["filter"][key] = None
-        ANIMETHEMES_OPTIONS["filter"]['resolution'] = 0
-
-        themes = parsers.get_download_data(user)
-        cache.set(key, themes)
-
-        return themes
+        if cache.get(started_key, False):
+            raise TaskStatus(f"User {user} has been already enqueued. Please wait.")
+        else:
+            GetUserThemesTask().delay(user, statuses)
+            raise TaskStatus(f"User {user} has been enqueued now.")
 
     def get(self, request):
         users = request.GET.getlist("user", ["przemub"])
@@ -60,7 +59,12 @@ class UserThemesView(View):
             if not statuses:
                 statuses = [1, 2]
 
-        themes = self._get_user_themes(random.choice(users), statuses)
+        user = random.choice(users)
+
+        try:
+            themes = self._get_user_themes(user, statuses)
+        except TaskStatus as ts:
+            return HttpResponse(str(ts))
 
         def check_if_right_type(local_theme):
             if openings and local_theme["metadata"]["themetype"].startswith(
