@@ -34,9 +34,7 @@ class UserThemesView(View):
         if cache.get(started_key, False):
             raise TaskStatus(f"User {user} has been already enqueued. Please wait.")
         else:
-            print("aaa")
             GetUserThemesTask().delay(user, statuses)
-            print("bbb")
             raise TaskStatus(f"User {user} has been enqueued now.")
 
     def get(self, request):
