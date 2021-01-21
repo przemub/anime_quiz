@@ -10,5 +10,5 @@ COPY . .
 CMD uwsgi --ini uwsgi.cfg
 
 # Expose uwsgi socket and HTTP
-EXPOSE 1234 8000
+EXPOSE 12345 8009
 

@@ -1,0 +1,30 @@
+version: "3.7"
+
+services:
+  anime_quiz:
+    build:
+      context: .
+    networks:
+      - anime_quiz
+      - server
+    ports:
+      - 8009:8009
+    depends_on:
+      - celery_worker
+  celery_worker:
+    build:
+      context: .
+    entrypoint: celery -A anime_quiz worker
+    networks:
+      - anime_quiz
+    depends_on:
+      - redis
+  redis:
+    image: redis:6.0
+    networks:
+      - anime_quiz
+
+networks:
+  server:
+    external: true
+  anime_quiz:
