@@ -11,6 +11,7 @@ services:
       - 8009:8009
     depends_on:
       - celery_worker
+    restart: unless-stopped
   celery_worker:
     build:
       context: .
@@ -19,10 +20,12 @@ services:
       - anime_quiz
     depends_on:
       - redis
+    restart: unless-stopped
   redis:
     image: redis:6.0
     networks:
       - anime_quiz
+    restart: unless-stopped
 
 networks:
   server:
