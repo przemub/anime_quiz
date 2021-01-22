@@ -27,6 +27,10 @@ class UserThemesView(View):
     ]
 
     def _get_user_themes(self, user, statuses):
+        result_key = f"result_{user}_{'-'.join(str(s) for s in statuses)}"
+        if result := cache.get(result_key, None):
+            return result
+
         started_key = f"started_user_{user}"
         if cache.get(started_key, False):
             raise TaskStatus(f"User {user} has been already enqueued. Please "
@@ -56,6 +60,7 @@ class UserThemesView(View):
 
         started_key = f"started_user_{user}"
         if not cache_misses:
+            cache.set(result_key, cache_hits, 60 * 60 * 24 * 7)
             return cache_hits
         elif cache.get(started_key, False):
             raise TaskStatus(f"User {user} has been already enqueued. Please "
