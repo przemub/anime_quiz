@@ -20,7 +20,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const details = document.getElementById('details');
     const player = document.getElementById('player');
 
-    let time = parseInt(document.getElementById('time-range').value);
+    let time = sessionStorage.getItem("time");
+    if(time === null) time = 10;
     let waiting = false; // True when waiting for data.
 
     function play() {
