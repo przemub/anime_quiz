@@ -1,40 +1,15 @@
 <template id="results-template">
-    <ul class="list-group" id="results">
-        <li class="list-group-item">
-            <div class="input-group">
-                <button class="btn" type="button" onclick="removePlayer(this)">X</button>
-                <input type="text" class="form-control user-field player-field" id="user" value="Player 1">
-                <button class="btn" type="button" onclick="addPoint(this)">+</button>
-                <button class="btn" type="button" onclick="removePoint(this)">-</button>
-                <div id="points">0</div>
+    <ul class="list-group-flush ps-0" id="results">
+        {% for i in '1234' %}
+        <li class="list-group-item ps-1 pe-1">
+            <div class="input-group ps-1 pe-1">
+                <button class="btn btn-outline-danger" type="button" onclick="removePlayer(this)">X</button>
+                <input type="text" class="form-control user-field player-field" id="user" value="Player {{ i }}">
+                <button class="btn btn-outline-primary" type="button" onclick="addPoint(this)">+</button>
+                <button class="btn btn-outline-secondary" type="button" onclick="removePoint(this)">-</button>
+                <span class="input-group-text points">0</span>
             </div>
         </li>
-        <li class="list-group-item">
-            <div class="input-group">
-                <button class="btn" type="button" onclick="removePlayer(this)">X</button>
-                <input type="text" class="form-control user-field player-field" id="user" value="Player 2">
-                <button class="btn" type="button" onclick="addPoint(this)">+</button>
-                <button class="btn" type="button" onclick="removePoint(this)">-</button>
-                <div id="points">0</div>
-            </div>
-        </li>
-        <li class="list-group-item">
-            <div class="input-group">
-                <button class="btn" type="button" onclick="removePlayer(this)">X</button>
-                <input type="text" class="form-control user-field player-field" id="user" value="Player 3">
-                <button class="btn" type="button" onclick="addPoint(this)">+</button>
-                <button class="btn" type="button" onclick="removePoint(this)">-</button>
-                <div id="points">0</div>
-            </div>
-        </li>
-        <li class="list-group-item">
-            <div class="input-group">
-                <button class="btn" type="button" onclick="removePlayer(this)">X</button>
-                <input type="text" class="form-control user-field player-field" id="user" value="Player 4">
-                <button class="btn" type="button" onclick="addPoint(this)">+</button>
-                <button class="btn" type="button" onclick="removePoint(this)">-</button>
-                <div id="points">0</div>
-            </div>
-        </li>
+        {% endfor %}
     </ul>
 </template>

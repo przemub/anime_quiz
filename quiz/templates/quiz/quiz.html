@@ -17,7 +17,7 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-md navbar-light bg-light">
-    <a class="navbar-brand" href="#">Anime Quiz</a>
+    <a class="navbar-brand ms-4" href="#">Anime Themes Quiz</a>
 
     <ul class="navbar-nav mr-auto">
        <li class="nav-item active">
@@ -26,29 +26,28 @@
     </ul>
 </nav>
 
-<main class="container">
-    <div class="row">
-        <div class="col-2">
-            Settings
+<main class="container-fluid">
+    <div class="row mt-4">
+        <div class="col-2 ps-4 pe-4">
+            <h5>Settings</h5>
 
             <form id="settings">
-            <label for="types">Types:</label>
-            <div class="form-group" id="types">
+            <div class="form-group pb-2" id="types">
+                    <label for="types" class="form-label">Types:</label>
 
-                        <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="type-openings" name="t-op" {% if openings %}checked{% endif %}>
-                        <label class="form-check-label" for="type-openings">Openings</label>
-                        </div>
+                    <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="type-openings" name="t-op" {% if openings %}checked{% endif %}>
+                    <label class="form-check-label" for="type-openings">Openings</label>
+                    </div>
 
-                        <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="type-endings" name="t-ed" {% if endings %}checked{% endif %}>
-                        <label class="form-check-label" for="type-endings">Endings</label>
-                        </div>
-
+                    <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="type-endings" name="t-ed" {% if endings %}checked{% endif %}>
+                    <label class="form-check-label" for="type-endings">Endings</label>
+                    </div>
             </div>
 
-            <label for="lists">Lists:</label>
-            <div class="form-group" id="lists">
+            <div class="form-group pb-2" id="lists">
+                <label for="lists" class="form-label">Lists:</label>
                 {% for status in all_statuses %}
                     {% if status %}
                         <div class="form-check">
@@ -59,35 +58,28 @@
                 {% endfor %}
             </div>
 
-            <label for="misc">Misc:</label>
-            <div class="form-group" id="misc">
-                <div>
-                    <label for="time-range" class="form-label">Time to guess</label>
-                    <input type="range" class="form-range" id="time-range" name="time" min="0" max="14" value="10" step="1">
-                    <div id="time-range-out-div">
-                        <output id="time-range-out">10</output> s
-                    </div>
+            <div class="form-group">
+                <label for="time-range" class="form-label">Time to guess</label>
+                <input type="range" class="form-range" id="time-range" min="0" max="14" value="10" step="1">
+                <div id="time-range-out-div">
+                    <output id="time-range-out">10</output> s
                 </div>
             </div>
 
              <div class="form-group">
-               <label for="user">Name:</label>
+               <label for="user" class="form-label">MAL usernames:</label>
                  {% for user in users %}
-                     <div class="input-group">
-                        <input type="text" class="form-control user-field" id="user" name="user" value="{{ user }}" required>
-                        <button class="btn" type="button"
-                            onclick="removeUser(this)">X</button>
-                     </div>
+                     {% include 'quiz/username.html' with user=user %}
                  {% endfor %}
-                <button id="addUserBtn" class="btn" type="button" onclick="addUser()">+</button>
+                <button id="addUserBtn" class="btn btn-outline-success w-100 mt-1" type="button" onclick="addUser()">Add a MAL user</button>
              </div>
 
             <input type="hidden" name="default" value="no">
-            <button class="btn" type="submit">Play!</button>
+            <button class="btn btn-outline-primary w-100 mt-2" type="submit">Play!</button>
             </form>
         </div>
 
-        <div class="col-8 text-center">
+        <div class="col-8 text-center screen-size">
             <video id="player" preload="auto">
                 <source src="{{ theme.url }}" type="video/webm">
             </video>
@@ -97,18 +89,22 @@
                 <div id="details">
                     {{ theme.metadata.album }} {{ theme.metadata.themetype }}<br>{{ theme.metadata.title }}<br>
                     {{ artists }}<br>
-                    <button onclick='location.reload()'>Next</button><br>
+                    <button class="btn btn-primary" onclick='location.reload()'>Next</button><br>
                 </div>
             </div>
         </div>
 
-        <div class="col-2 text-left" id="results-list">
-            <label for="results">Results</label>
+        <div class="col-2 text-left ps-4 pe-4" id="results-list">
+            <h5>Scoreboard</h5>
             <div id="results-div">
-
             </div>
-            <button id="addPlayerBtn" class="btn" type="button" onclick="addPlayer(this)">+</button>
-            <button id="clearPlayerBtn" class="btn" type="button" onclick="clearPlayer(this)">Clear</button>
+
+            <div class="btn-group w-100 ps-2 pe-2">
+                <button id="addPlayerBtn" class="btn btn-outline-success" type="button" onclick="addPlayer()">Add a player</button>
+                <button id="clearPlayerBtn" class="btn btn-outline-danger" type="button" onclick="clearPlayer()">Clear the board</button>
+            </div>
+
+            <img class="w-100 mt-4" src="{% static 'quiz/rem-ram.gif' %}" alt="Rem/Ram" id="remram">
         </div>
     </div>
 </main>
@@ -116,8 +112,8 @@
     Made with <3 by <a href="https://prem.moe">prem.moe</a>. Hugs to <a href="https://animethemes.moe">animethemes.moe</a> team and <a href="https://github.com/thesadru/animethemes-dl">thesadru</a>.
 </footer>
 
-<img class="icon" src="{% static 'quiz/rem-ram.gif' %}" alt="Rem/Ram" id="remram">
-
 {% include 'quiz/results_template.html' %}
+
+<template id="username-template">{% include 'quiz/username.html' with user="" %}</template>
 </body>
 </html>
