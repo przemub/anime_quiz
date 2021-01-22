@@ -31,6 +31,12 @@ class GetUserThemesTask(app.Task):
         new_themes = []
         while themes:
             for anime_id, anime_title in themes:
+                anime_key = f"themes-{anime_id}"
+
+                # Check if the anime has not been fetched in the meantime
+                if cache.get(anime_key, None) is not None:
+                    continue
+
                 _, result = animethemes.request_anime((anime_id, anime_title))
 
                 if isinstance(result, AnimeThemesTimeout):
@@ -38,7 +44,6 @@ class GetUserThemesTask(app.Task):
                     print("Timeout. Trying again in 10 seconds.")
                     time.sleep(10)
                 else:
-                    anime_key = f"themes-{anime_id}"
 
                     result = list(parse_anime(result)) if result else MISSING_IN_ANIMETHEMES
                     # Expire in a month
