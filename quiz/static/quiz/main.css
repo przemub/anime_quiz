@@ -61,3 +61,9 @@ img.icon {
 #remram {
     position: fixed;
 }
+
+#time-range-out-div {
+    text-align: center;
+    margin-top: -0.8em;
+}
+
