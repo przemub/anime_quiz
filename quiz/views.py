@@ -1,11 +1,13 @@
 import random as random_module
 
+from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS, AnimeThemesTimeout
+from animethemes_dl.parsers.myanimelist import get_raw_mal, filter_mal
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic.base import View
 
-from .tasks import GetUserThemesTask
+from .tasks import GetUserThemesTask, MISSING_IN_ANIMETHEMES
 
 random = random_module.SystemRandom()
 
@@ -25,17 +27,42 @@ class UserThemesView(View):
     ]
 
     def _get_user_themes(self, user, statuses):
-        key = f"user_themes_{user}_{'-'.join(str(s) for s in statuses)}"
-        started_key = f"started_user_themes_{user}_{'-'.join(str(s) for s in statuses)}"
-        themes_cache = cache.get(key, None)
-        if themes_cache is not None:
-            return themes_cache
-
+        started_key = f"started_user_{user}"
         if cache.get(started_key, False):
-            raise TaskStatus(f"User {user} has been already enqueued. Please wait.")
+            raise TaskStatus(f"User {user} has been already enqueued. Please "
+                             "wait.")
+
+        mal_key = f"user_mal_{user}"
+        mal_data = cache.get(mal_key, None)
+        if mal_data is None:
+            mal_data = get_raw_mal(user)
+            cache.set(mal_key, mal_data, 60 * 60 * 24 * 7)  # Expire in a week
+
+        ANIMETHEMES_OPTIONS["statuses"] = statuses
+        mal_data = filter_mal(mal_data)
+
+        cache_misses = []
+        cache_hits = []
+
+        for mal_id, title in mal_data:
+            anime_key = f"themes-{mal_id}"
+            anime_data = cache.get(anime_key, None)
+            if anime_data is MISSING_IN_ANIMETHEMES:
+                pass
+            elif anime_data is None:
+                cache_misses.append((mal_id, title))
+            else:
+                cache_hits.extend(anime_data)
+
+        started_key = f"started_user_{user}"
+        if not cache_misses:
+            return cache_hits
+        elif cache.get(started_key, False):
+            raise TaskStatus(f"User {user} has been already enqueued. Please "
+                             "wait.")
         else:
-            GetUserThemesTask().delay(user, statuses)
-            raise TaskStatus(f"User {user} has been enqueued now.")
+            GetUserThemesTask().delay(user, cache_misses)
+            raise TaskStatus(f"User {user} has been enqueued just now.")
 
     def get(self, request):
         users = request.GET.getlist("user", ["przemub"])
