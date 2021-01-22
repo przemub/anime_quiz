@@ -18,9 +18,9 @@ function removeUser(element) {
 document.addEventListener("DOMContentLoaded", function() {
     const count = document.getElementById('count');
     const details = document.getElementById('details');
-    const player = document.getElementById('player')
+    const player = document.getElementById('player');
 
-    let time = 9;
+    let time = parseInt(document.getElementById('time-range').value);
     let waiting = false; // True when waiting for data.
 
     function play() {
@@ -111,4 +111,15 @@ document.addEventListener("DOMContentLoaded", function () {
             playerField.outerHTML = playerField.outerHTML.replace(/value=".*"/, 'value="'+playerField.value+'"');
         };
     }
+
+    let time = sessionStorage.getItem("time");
+    if(time === null) time = 10;
+
+    const timeRange = document.getElementById('time-range');
+    timeRange.value = time;
+    document.getElementById('time-range-out').innerText = timeRange.value;
+    timeRange.addEventListener('change', function(){
+        document.getElementById('time-range-out').innerText = timeRange.value;
+        sessionStorage['time'] = timeRange.value;
+    });
 });

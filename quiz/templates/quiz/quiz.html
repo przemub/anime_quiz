@@ -56,6 +56,17 @@
                 {% endfor %}
             </div>
 
+            <label for="misc">Misc:</label>
+            <div class="form-group" id="misc">
+                <div>
+                    <label for="time-range" class="form-label">Time to guess</label>
+                    <input type="range" class="form-range" id="time-range" name="time" min="0" max="14" value="10" step="1">
+                    <div id="time-range-out-div">
+                        <output id="time-range-out">10</output> s
+                    </div>
+                </div>
+            </div>
+
              <div class="form-group">
                <label for="user">Name:</label>
                  {% for user in users %}
