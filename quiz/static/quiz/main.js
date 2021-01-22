@@ -21,15 +21,15 @@ document.addEventListener("DOMContentLoaded", function() {
     const details = document.getElementById('details');
     const player = document.getElementById('player');
 
-    let time = sessionStorage.getItem("time");
-    if(time === null) time = 10;
+    let time = parseInt(sessionStorage.getItem("time"));
+    if (time === null) time = 10;
     let waiting = false; // True when waiting for data.
 
     function play() {
         player.removeEventListener('canplaythrough', play);
 
         function step() {
-            if (time > 0) {
+            if (time > 1) {
                 if (player.playing)
                     time--;
                 count.innerText = time.toString();
@@ -44,7 +44,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         player.play().then(() => {
             count.innerText = time.toString();
-            setTimeout(step, 1000);
+            if (time === 0)
+                step();
+            else
+                setTimeout(step, 1000);
         }).catch(() => {
             count.innerText = "Enable Autoplay (in the address bar) and press Play!";
        });
