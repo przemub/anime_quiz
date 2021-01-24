@@ -14,19 +14,27 @@
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
+import os
 
 from .settings import *  # noqa
 
 DEBUG = False
 
-BUGSNAG = {
-    'api_key': '***REMOVED***',
-    'project_root': '/usr/src/app',
-}
-LOGGING["handlers"]["bugsnag"] = {
-    'level': 'INFO',
-    'class': 'bugsnag.handlers.BugsnagHandler',
-}
-LOGGING["loggers"]["django"]["handlers"].append("bugsnag")
+if os.environ.get('QUIZ_SECRET_KEY', None):
+    SECRET_KEY = os.environ["QUIZ_SECRET_KEY"]
+else:
+    raise Exception("QUIZ_SECRET_KEY environment variable is not set!")
+
+if os.environ.get('QUIZ_BUGSNAG', None):
+    BUGSNAG = {
+        'api_key': os.environ["QUIZ_BUGSNAG"],
+        'project_root': '/usr/src/app',
+    }
+
+    LOGGING["handlers"]["bugsnag"] = {
+        'level': 'INFO',
+        'class': 'bugsnag.handlers.BugsnagHandler',
+    }
+    LOGGING["loggers"]["django"]["handlers"].append("bugsnag")
 
 MIDDLEWARE += ["bugsnag.django.middleware.BugsnagMiddleware"]
