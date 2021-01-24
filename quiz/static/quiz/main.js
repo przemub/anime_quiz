@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const player = document.getElementById('player');
 
     let time = parseInt(sessionStorage.getItem("time"));
-    if (time === null) time = 10;
+    if (isNaN(time)) time = 10;
+
     let waiting = false; // True when waiting for data.
 
     function play() {
@@ -111,8 +112,8 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    let time = sessionStorage.getItem("time");
-    if(time === null) time = 10;
+    let time = parseInt(sessionStorage.getItem("time"));
+    if(isNaN(time)) time = 10;
 
     const timeRange = document.getElementById('time-range');
     timeRange.value = time;
