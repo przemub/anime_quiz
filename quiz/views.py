@@ -17,11 +17,13 @@
 
 import random as random_module
 
-from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS, AnimeThemesTimeout
+from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS, AnimeThemesTimeout, \
+    MyanimelistException
 from animethemes_dl.parsers.myanimelist import get_raw_mal, filter_mal
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
 from .tasks import GetUserThemesTask, MISSING_IN_ANIMETHEMES
@@ -108,12 +110,40 @@ class UserThemesView(View):
             if not statuses:
                 statuses = [1, 2]
 
-        user = random.choice(users)
+        users_shuffled = random.sample(users, len(users))
+        themes = None
+        alert = ""
+        enqueued_users = []
+        playing_user = "przemub"
 
-        try:
-            themes = self._get_user_themes(user, statuses)
-        except TaskStatus as ts:
-            return HttpResponse(str(ts))
+        for user in users_shuffled:
+            try:
+                user_themes = self._get_user_themes(user, statuses)
+            except TaskStatus as ts:
+                enqueued_users.append(user)
+            except MyanimelistException:
+                alert += f"User {user} does not exist. <br />"
+            else:
+                if user_themes:
+                    playing_user = user
+                    themes = user_themes
+                else:
+                    alert += f"User {user} has an empty list. <br />"
+
+        if enqueued_users:
+            plural = len(enqueued_users) > 1
+            alert += f"User{'s' if plural else ''} " \
+                     f"{', '.join(enqueued_users)} " \
+                     f"{'have' if plural else 'has'} been enqueued.<br />" \
+                     "For the time being, choosing a theme from " \
+                     f"{playing_user}'s list."
+
+            if themes is None:
+                themes = self._get_user_themes("przemub", statuses)
+
+        if not themes:
+            alert += "Playing przemub's list."
+            themes = self._get_user_themes("przemub", statuses)
 
         def check_if_right_type(local_theme):
             if openings and local_theme["metadata"]["themetype"].startswith(
@@ -127,7 +157,6 @@ class UserThemesView(View):
             return False
 
         themes = list(filter(check_if_right_type, themes))
-        print(len(themes))
 
         theme = random.choice(themes)
 
@@ -141,7 +170,7 @@ class UserThemesView(View):
             "endings": endings,
             "statuses": statuses,
             "all_statuses": self.ALL_STATUSES,
+            "alert": mark_safe(alert)
         }
-        print(context)
 
         return render(request, "quiz/quiz.html", context)
