@@ -1,6 +1,6 @@
 ## Anime Themes Quiz
 
-**Official instance: [quiz.moe](quiz.moe)**
+**Official instance: [quiz.moe](https://quiz.moe)**
 
 Have you ever had an anime quiz with your friends,
 used a YouTube video for that and thought:
@@ -10,10 +10,10 @@ used a YouTube video for that and thought:
 Look no further!
 
 Anime Quiz pulls the anime you and your friends watched from
-your [MyAnimeList](myanimelist.com) profiles and randomly
+your [MyAnimeList](https://myanimelist.net) profiles and randomly
 generates a quiz --- it first chooses one of the participants,
 then pulls their MAL list, gets links to themes hosted at
-[animethemes.moe](animethemes.moe), plays it and gives you
+[animethemes.moe](https://animethemes.moe), plays it and gives you
 10 seconds (configurable) to guess! Then the whole video is 
 uncovered for you to enjoy and the person who guessed can
 shout at the gamemaster to add their points to the built-in
@@ -30,10 +30,10 @@ scoreboard.
 
 ### Run
 
-If you just want to play, go to [quiz.moe](quiz.moe).
+If you just want to play, go to [quiz.moe](https://quiz.moe).
 
 If you want to develop or self-host, the recommended way is to
-install [https://docker.com](Docker) with Docker Compose and run:
+install [Docker](https://docker.com) with Docker Compose and run:
 ```shell
 docker-compose up -d
 docker-compose exec anime_quiz python manage.py collectstatic
