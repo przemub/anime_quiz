@@ -78,6 +78,8 @@ document.addEventListener("DOMContentLoaded", function() {
     player.addEventListener('ended', () => { location.reload(); });
     player.addEventListener('waiting', () => { waiting = true; })
     player.addEventListener('playing', () => { waiting = false; })
+
+    initColorMode();
 });
 
 function addPlayer() {
@@ -142,3 +144,58 @@ document.addEventListener("DOMContentLoaded", function () {
         sessionStorage['time'] = timeRange.value;
     });
 });
+
+function initColorMode() {
+    let mode = sessionStorage.getItem("color-mode");
+    if (mode === null) {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            mode = "dark";
+    }
+
+    if (mode === "dark")
+        _setDarkMode();
+}
+
+function _setLightMode() {
+    const body = document.getElementsByTagName("body")[0];
+    const nav = document.getElementsByTagName("nav")[0];
+    const footer = document.getElementsByTagName("footer")[0];
+    const button = document.getElementById("mode-switch");
+
+    body.className = "";
+    nav.className = "navbar navbar-expand-md navbar-light bg-light";
+    footer.className = "text-center bg-light";
+
+    for (const li of document.querySelectorAll("li.list-group-item"))
+        li.classList.remove("bg-dark");
+
+    button.innerText = "Dark mode";
+    sessionStorage.setItem("color-mode", "light");
+}
+
+function _setDarkMode() {
+    const body = document.getElementsByTagName("body")[0];
+    const nav = document.getElementsByTagName("nav")[0];
+    const footer = document.getElementsByTagName("footer")[0];
+    const button = document.getElementById("mode-switch");
+
+    body.className = "bg-dark text-light";
+    nav.className = "navbar navbar-expand-md navbar-dark bg-dark";
+    footer.className = "text-center";
+
+    for (const li of document.querySelectorAll("li.list-group-item"))
+        li.classList.add("bg-dark");
+
+    button.innerText = "Light mode";
+    sessionStorage.setItem("color-mode", "dark");
+}
+
+function colorModeSwitch() {
+    const body = document.getElementsByTagName("body")[0];
+
+    if (body.className === "bg-dark text-light") {
+        _setLightMode();
+    } else {
+        _setDarkMode();
+    }
+}
