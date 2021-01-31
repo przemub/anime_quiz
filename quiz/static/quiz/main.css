@@ -37,15 +37,6 @@
 #player {
     visibility: hidden;
     width: 100%;
-    max-height: calc(100vh - 23em);
-}
-
-footer {
-    position: fixed;
-    bottom: 0;
-    text-align: center;
-    width: 100%;
-    padding: 1em;
 }
 
 #time-range-out-div {
@@ -62,4 +53,33 @@ footer {
     transform: translateX(-50%);
     left: 50%;
     top: 0.5em;
+}
+
+footer {
+    padding: 1em;
+}
+
+/* Row mode */
+@media (max-width: 991px) {
+    img#remram {
+        width: 70%;
+    }
+
+    aside {
+        width: 40% !important;
+        min-width: 400px;
+        text-align: center;
+        margin: auto;
+    }
+}
+
+/* Column mode */
+@media (min-width: 992px) {
+    img#remram {
+        width: 100%;
+    }
+
+    #player {
+        max-height: calc(100vh - 23em);
+    }
 }

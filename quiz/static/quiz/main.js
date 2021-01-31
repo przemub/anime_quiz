@@ -162,9 +162,13 @@ function _setLightMode() {
     const footer = document.getElementsByTagName("footer")[0];
     const button = document.getElementById("mode-switch");
 
-    body.className = "";
-    nav.className = "navbar navbar-expand-md navbar-light bg-light";
-    footer.className = "text-center bg-light";
+    body.classList.remove("bg-dark");
+    body.classList.remove("text-light");
+    nav.classList.remove("bg-dark");
+    nav.classList.remove("navbar-dark");
+    nav.classList.add("bg-light");
+    nav.classList.add("navbar-light");
+    footer.classList.add("bg-light");
 
     for (const li of document.querySelectorAll("li.list-group-item"))
         li.classList.remove("bg-dark");
@@ -179,9 +183,11 @@ function _setDarkMode() {
     const footer = document.getElementsByTagName("footer")[0];
     const button = document.getElementById("mode-switch");
 
-    body.className = "bg-dark text-light";
-    nav.className = "navbar navbar-expand-md navbar-dark bg-dark";
-    footer.className = "text-center";
+    body.classList.add("bg-dark");
+    body.classList.add("text-light");
+    nav.classList.add("bg-dark");
+    nav.classList.add("navbar-dark");
+    footer.classList.remove("bg-light");
 
     for (const li of document.querySelectorAll("li.list-group-item"))
         li.classList.add("bg-dark");

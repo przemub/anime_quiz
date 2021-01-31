@@ -44,7 +44,7 @@
 
 <main class="container-fluid">
     <div class="row mt-4">
-        <div class="col-lg-3 col-xxl-2 ps-4 pe-4">
+        <aside class="col-lg-3 col-xxl-2 order-last order-lg-first ps-4 pe-4">
             <h5>Settings</h5>
 
             <form id="settings">
@@ -93,10 +93,10 @@
             <input type="hidden" name="default" value="no">
             <button class="btn btn-outline-primary w-100 mt-2" type="submit">Play!</button>
             </form>
-        </div>
+        </aside>
 
-        <div class="col-lg-6 col-xxl-8 text-center screen-size">
-            <video id="player" preload="auto">
+        <div class="col-lg-6 col-xxl-8 order-first order-lg-1 text-center screen-size">
+            <video id="player" preload="auto" disablePictureInPicture>
                 <source src="{{ theme.url }}" type="video/webm">
             </video>
 
@@ -110,7 +110,7 @@
             </div>
         </div>
 
-        <div class="col-lg-3 col-xxl-2 text-left ps-4 pe-4" id="results-list">
+        <aside class="col-lg-3 col-xxl-2 text-left order-1 order-lg-last ps-4 pe-4" id="results-list">
             <h5>Scoreboard</h5>
             <div id="results-div">
             </div>
@@ -120,11 +120,11 @@
                 <button id="clearPlayerBtn" class="btn btn-outline-danger" type="button" onclick="clearPlayer()">Clear the board</button>
             </div>
 
-            <img class="w-100 mt-4" src="{% static 'quiz/rem-ram.gif' %}" alt="Rem/Ram" id="remram">
-        </div>
+            <img class="mt-4" src="{% static 'quiz/rem-ram.gif' %}" alt="Rem/Ram" id="remram">
+        </aside>
     </div>
 </main>
-<footer class="bg-light text-center">
+<footer class="text-center fixed-bottom">
     Made with <3 by <a href="https://prem.moe">prem.moe</a>. Hugs to <a href="https://animethemes.moe">animethemes.moe</a> team and <a href="https://github.com/thesadru/animethemes-dl">thesadru</a>.
 </footer>
 
