@@ -17,13 +17,11 @@
 
 import time
 
-from animethemes_dl import AnimeThemesTimeout
-from animethemes_dl.parsers import animethemes
-from animethemes_dl.parsers.dldata import parse_anime
 from celery.utils.log import get_task_logger
 from django.core.cache import cache
 
 from anime_quiz.celery import app
+from quiz.animethemes import request_anime, AnimeThemesTimeout
 
 logger = get_task_logger(__name__)
 
@@ -54,19 +52,21 @@ class GetUserThemesTask(app.Task):
                 if cache.get(anime_key, None) is not None:
                     continue
 
-                _, result = animethemes.request_anime((anime_id, anime_title))
+                try:
+                    result = request_anime(anime_id, anime_title)
 
-                if isinstance(result, AnimeThemesTimeout):
-                    new_themes.append((anime_id, anime_title))
-                    print("Timeout. Trying again in 10 seconds.")
-                    time.sleep(10)
-                else:
-
-                    result = list(parse_anime(result)) if result else MISSING_IN_ANIMETHEMES
                     # Expire in a month
-                    cache.set(anime_key, result, 60 * 60 * 24 * 30)
-                    print(f"{count}/{total}")
+                    cache.set(
+                        anime_key,
+                        result,
+                        60 * 60 * 24 * 30,
+                    )
+                    logger.info(f"{count}/{total}")
                     count += 1
+                except AnimeThemesTimeout:
+                    new_themes.append((anime_id, anime_title))
+                    logger.info("Timeout. Trying again in 30 seconds.")
+                    time.sleep(30)
 
             themes = new_themes
             new_themes = []

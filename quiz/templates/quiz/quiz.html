@@ -97,13 +97,13 @@
 
         <div class="col-lg-6 col-xxl-8 order-first order-lg-1 text-center screen-size">
             <video id="player" preload="auto" disablePictureInPicture>
-                <source src="{{ theme.url }}" type="video/webm">
+                <source src="{{ url }}" type="video/webm">
             </video>
 
             <div id="info">
                 <span id="count">Loading…</span>
                 <div id="details">
-                    {{ theme.metadata.album }} {{ theme.metadata.themetype }}<br>{{ theme.metadata.title }}<br>
+                    {{ theme.anime_title }} {{ theme.slug }}<br>{{ theme.title }}<br>
                     {{ artists }}<br>
                     <button class="btn btn-primary" onclick='location.reload()'>Next</button><br>
                 </div>

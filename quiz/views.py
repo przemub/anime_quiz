@@ -17,11 +17,9 @@
 
 import random as random_module
 
-from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS, AnimeThemesTimeout, \
-    MyanimelistException
+from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS, MyanimelistException
 from animethemes_dl.parsers.myanimelist import get_raw_mal, filter_mal
 from django.core.cache import cache
-from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from django.views.generic.base import View
@@ -70,9 +68,7 @@ class UserThemesView(View):
         for mal_id, title in mal_data:
             anime_key = f"themes-{mal_id}"
             anime_data = cache.get(anime_key, None)
-            if anime_data is MISSING_IN_ANIMETHEMES:
-                pass
-            elif anime_data is None:
+            if anime_data is None:
                 cache_misses.append((mal_id, title))
             else:
                 cache_hits.extend(anime_data)
@@ -119,7 +115,7 @@ class UserThemesView(View):
         for user in users_shuffled:
             try:
                 user_themes = self._get_user_themes(user, statuses)
-            except TaskStatus as ts:
+            except TaskStatus:
                 enqueued_users.append(user)
             except MyanimelistException:
                 alert += f"User {user} does not exist. <br />"
@@ -146,25 +142,21 @@ class UserThemesView(View):
             themes = self._get_user_themes("przemub", statuses)
 
         def check_if_right_type(local_theme):
-            if openings and local_theme["metadata"]["themetype"].startswith(
-                "OP"
-            ):
+            if openings and local_theme["type"] == "OP":
                 return True
-            if endings and local_theme["metadata"]["themetype"].startswith(
-                "ED"
-            ):
+            if endings and local_theme["type"] == "ED":
                 return True
             return False
 
         themes = list(filter(check_if_right_type, themes))
-
         theme = random.choice(themes)
 
-        artists = ", ".join(theme["metadata"]["artists"])
+        # Get a random version of the theme
+        url = random.choice(random.choice(theme['entries'])['videos'])['link'].replace('staging.', '')
 
         context = {
+            "url": url,
             "theme": theme,
-            "artists": artists,
             "users": users,
             "openings": openings,
             "endings": endings,

@@ -7,6 +7,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN useradd -d /usr/src/app -s /bin/bash app
+USER app
 CMD uwsgi --ini uwsgi.cfg
 
 # Expose uwsgi socket and HTTP

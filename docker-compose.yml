@@ -19,7 +19,7 @@ services:
   celery_worker:
     build:
       context: .
-    entrypoint: celery -A anime_quiz worker
+    entrypoint: celery -A anime_quiz worker -E -l INFO
     networks:
       - anime_quiz
     depends_on:
@@ -28,7 +28,7 @@ services:
     env_file:
       - .env
   redis:
-    image: redis:6.0
+    image: redis:6.2
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
