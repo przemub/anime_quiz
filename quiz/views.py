@@ -165,6 +165,7 @@ class UserThemesView(View):
         context = {
             "url": url,
             "theme": theme,
+            "artists": ", ".join(artist['name'] for artist in theme['song']['artists']),
             "users": users,
             "openings": openings,
             "endings": endings,
