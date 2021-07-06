@@ -85,7 +85,7 @@ def request_anime(mal_id: int, title: str) -> list[Theme]:
     for anime in animes:
         anime_full_data: Anime = _query_api(
             "/anime/" + anime["slug"],
-            params={"include": "externalResources,themes.entries.videos"},
+            params={"include": "resources,themes.entries.videos"},
         )["anime"]
 
         if mal_id in (
