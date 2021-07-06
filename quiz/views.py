@@ -20,6 +20,7 @@ import random as random_module
 from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS, MyanimelistException
 from animethemes_dl.parsers.myanimelist import get_raw_mal, filter_mal
 from django.core.cache import cache
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from django.views.generic.base import View
@@ -135,11 +136,18 @@ class UserThemesView(View):
                      f"{playing_user}'s list."
 
             if themes is None:
-                themes = self._get_user_themes("przemub", statuses)
+                try:
+                    themes = self._get_user_themes("przemub", statuses)
+                except TaskStatus as status:
+                    return HttpResponse("quiz.moe is temporarily unavailable. Come back in 10 minutes!<br>Message:<br> " + status.args[0], status=503)
 
         if not themes:
             alert += "Playing przemub's list."
-            themes = self._get_user_themes("przemub", statuses)
+            try:
+                themes = self._get_user_themes("przemub", statuses)
+            except TaskStatus as status:
+                return HttpResponse(
+                "quiz.moe is temporarily unavailable. Come back in 10 minutes!<br>Message:<br> " + status.args[0], status=503)
 
         def check_if_right_type(local_theme):
             if openings and local_theme["type"] == "OP":
