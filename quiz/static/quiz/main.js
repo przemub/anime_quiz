@@ -75,7 +75,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     player.addEventListener('canplaythrough', play);
-    player.addEventListener('ended', () => { location.reload(); });
+    player.addEventListener('ended', () => {
+        document.getElementById('settings').submit();
+    });
     player.addEventListener('waiting', () => { waiting = true; })
     player.addEventListener('playing', () => { waiting = false; })
 
