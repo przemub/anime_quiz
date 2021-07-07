@@ -25,7 +25,7 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
-from .tasks import GetUserThemesTask, MISSING_IN_ANIMETHEMES
+from .tasks import GetUserThemesTask
 
 random = random_module.SystemRandom()
 
@@ -51,8 +51,9 @@ class UserThemesView(View):
 
         started_key = f"started_user_{user}"
         if cache.get(started_key, False):
-            raise TaskStatus(f"User {user} has been already enqueued. Please "
-                             "wait.")
+            raise TaskStatus(
+                f"User {user} has been already enqueued. Please " "wait."
+            )
 
         mal_key = f"user_mal_{user}"
         mal_data = cache.get(mal_key, None)
@@ -79,23 +80,63 @@ class UserThemesView(View):
             cache.set(result_key, cache_hits, 60 * 60 * 24 * 7)
             return cache_hits
         elif cache.get(started_key, False):
-            raise TaskStatus(f"User {user} has been already enqueued. Please "
-                             "wait.")
+            raise TaskStatus(
+                f"User {user} has been already enqueued. Please " "wait."
+            )
         else:
             GetUserThemesTask().delay(user, cache_misses)
             raise TaskStatus(f"User {user} has been enqueued just now.")
 
+    def _apply_themes_filters(self, themes, openings, endings, spoilers, nsfw):
+        """Apply filters to themes. Filters: openings, endings, spoilers, NSFW."""
+
+        if not spoilers:
+            # If asked, exclude videos with spoilers.
+            for theme in themes:
+                theme["entries"] = list(
+                    entry
+                    for entry in theme["entries"]
+                    if entry["spoiler"] is False
+                )
+
+        if not nsfw:
+            # If asked, exclude lewds.
+            for theme in themes:
+                theme["entries"] = list(
+                    entry
+                    for entry in theme["entries"]
+                    if entry["nsfw"] is False
+                )
+
+        # Exclude themes with only hentai or spoiler videos
+        themes = [theme for theme in themes if theme["entries"]]
+
+        def check_if_right_type(local_theme):
+            if openings and local_theme["type"] == "OP":
+                return True
+            if endings and local_theme["type"] == "ED":
+                return True
+            return False
+
+        themes = list(filter(check_if_right_type, themes))
+
+        return themes
+
     def get(self, request):
         users = request.GET.getlist("user", ["przemub"])
 
+        # Get theme filters
         default = request.GET.get("default", "yes") == "yes"
         openings = default or request.GET.get("t-op", "off") == "on"
         endings = request.GET.get("t-ed", "off") == "on"
+        spoilers = request.GET.get("sp", "off") == "on"
+        nsfw = default or request.GET.get("nsfw", "on")
 
         # Something must be enabled
         if not (openings or endings):
             openings, endings = True, False
 
+        # Get anime filters (Watching, completed, on-hold, dropped, PTW)
         if default:
             statuses = [1, 2]  # Watching, completed
         else:
@@ -113,6 +154,7 @@ class UserThemesView(View):
         enqueued_users = []
         playing_user = "przemub"
 
+        # Queue all users and choose a random user list to choose an anime from
         for user in users_shuffled:
             try:
                 user_themes = self._get_user_themes(user, statuses)
@@ -129,17 +171,23 @@ class UserThemesView(View):
 
         if enqueued_users:
             plural = len(enqueued_users) > 1
-            alert += f"User{'s' if plural else ''} " \
-                     f"{', '.join(enqueued_users)} " \
-                     f"{'have' if plural else 'has'} been enqueued.<br />" \
-                     "For the time being, choosing a theme from " \
-                     f"{playing_user}'s list."
+            alert += (
+                f"User{'s' if plural else ''} "
+                f"{', '.join(enqueued_users)} "
+                f"{'have' if plural else 'has'} been enqueued.<br />"
+                "For the time being, choosing a theme from "
+                f"{playing_user}'s list."
+            )
 
             if themes is None:
                 try:
                     themes = self._get_user_themes("przemub", statuses)
                 except TaskStatus as status:
-                    return HttpResponse("quiz.moe is temporarily unavailable. Come back in 10 minutes!<br>Message:<br> " + status.args[0], status=503)
+                    return HttpResponse(
+                        "quiz.moe is temporarily unavailable. Come back in 10 minutes!<br>Message:<br> "
+                        + status.args[0],
+                        status=503,
+                    )
 
         if not themes:
             alert += "Playing przemub's list."
@@ -147,31 +195,35 @@ class UserThemesView(View):
                 themes = self._get_user_themes("przemub", statuses)
             except TaskStatus as status:
                 return HttpResponse(
-                "quiz.moe is temporarily unavailable. Come back in 10 minutes!<br>Message:<br> " + status.args[0], status=503)
+                    "quiz.moe is temporarily unavailable. Come back in 10 minutes!<br>Message:<br> "
+                    + status.args[0],
+                    status=503,
+                )
 
-        def check_if_right_type(local_theme):
-            if openings and local_theme["type"] == "OP":
-                return True
-            if endings and local_theme["type"] == "ED":
-                return True
-            return False
-
-        themes = list(filter(check_if_right_type, themes))
+        themes = self._apply_themes_filters(
+            themes, openings, endings, spoilers, nsfw
+        )
         theme = random.choice(themes)
 
         # Get a random version of the theme
-        url = random.choice(random.choice(theme['entries'])['videos'])['link'].replace('staging.', '')
+        url = random.choice(random.choice(theme["entries"])["videos"])[
+            "link"
+        ].replace("staging.", "")
 
         context = {
             "url": url,
             "theme": theme,
-            "artists": ", ".join(artist['name'] for artist in theme['song']['artists']),
+            "artists": ", ".join(
+                artist["name"] for artist in theme["song"]["artists"]
+            ),
             "users": users,
             "openings": openings,
             "endings": endings,
+            "spoilers": spoilers,
+            "nsfw": nsfw,
             "statuses": statuses,
             "all_statuses": self.ALL_STATUSES,
-            "alert": mark_safe(alert)
+            "alert": mark_safe(alert),
         }
 
         return render(request, "quiz/quiz.html", context)

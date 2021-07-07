@@ -59,6 +59,10 @@ footer {
     padding: 1em;
 }
 
+a#mode-switch {
+    cursor: grab;
+}
+
 /* Row mode */
 @media (max-width: 991px) {
     img#remram {
