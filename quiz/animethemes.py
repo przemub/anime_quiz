@@ -58,7 +58,7 @@ class Anime(AnimeSearchResult):
     """
 
     resources: Optional[List[Resource]]
-    themes: List[Theme]
+    animethemes: List[Theme]
 
 
 GET_PARAM = Union[str, int, float, List[Union[str, int, float]]]
@@ -85,7 +85,12 @@ def request_anime(mal_id: int, title: str) -> list[Theme]:
     for anime in animes:
         anime_full_data: Anime = _query_api(
             "/anime/" + anime["slug"],
-            params={"include": "resources,themes.entries.videos,themes.song,themes.song.artists"},
+            params={
+                "include": "resources,"
+                           "animethemes.animethemeentries.videos,"
+                           "animethemes.song,"
+                           "animethemes.song.artists"
+            },
         )["anime"]
 
         if mal_id in (
@@ -94,8 +99,8 @@ def request_anime(mal_id: int, title: str) -> list[Theme]:
                 if res["site"] == "MyAnimeList"
         ):
             # Add some needed data to each theme
-            for theme in anime_full_data['themes']:
+            for theme in anime_full_data['animethemes']:
                 theme['anime_title'] = title
 
-            return anime_full_data['themes']
+            return anime_full_data['animethemes']
     return []

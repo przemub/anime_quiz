@@ -51,9 +51,7 @@ class UserThemesView(View):
 
         started_key = f"started_user_{user}"
         if cache.get(started_key, False):
-            raise TaskStatus(
-                f"User {user} has been already enqueued. Please " "wait."
-            )
+            raise TaskStatus(f"User {user} has been already enqueued. Please " "wait.")
 
         mal_key = f"user_mal_{user}"
         mal_data = cache.get(mal_key, None)
@@ -80,9 +78,7 @@ class UserThemesView(View):
             cache.set(result_key, cache_hits, 60 * 60 * 24 * 7)
             return cache_hits
         elif cache.get(started_key, False):
-            raise TaskStatus(
-                f"User {user} has been already enqueued. Please " "wait."
-            )
+            raise TaskStatus(f"User {user} has been already enqueued. Please " "wait.")
         else:
             GetUserThemesTask().delay(user, cache_misses)
             raise TaskStatus(f"User {user} has been enqueued just now.")
@@ -93,23 +89,23 @@ class UserThemesView(View):
         if not spoilers:
             # If asked, exclude videos with spoilers.
             for theme in themes:
-                theme["entries"] = list(
+                theme["animethemeentries"] = list(
                     entry
-                    for entry in theme["entries"]
+                    for entry in theme["animethemeentries"]
                     if entry["spoiler"] is False
                 )
 
         if not nsfw:
             # If asked, exclude lewds.
             for theme in themes:
-                theme["entries"] = list(
+                theme["animethemeentries"] = list(
                     entry
-                    for entry in theme["entries"]
+                    for entry in theme["animethemeentries"]
                     if entry["nsfw"] is False
                 )
 
         # Exclude themes with only hentai or spoiler videos
-        themes = [theme for theme in themes if theme["entries"]]
+        themes = [theme for theme in themes if theme["animethemeentries"]]
 
         def check_if_right_type(local_theme):
             if openings and local_theme["type"] == "OP":
@@ -195,27 +191,24 @@ class UserThemesView(View):
                 themes = self._get_user_themes("przemub", statuses)
             except TaskStatus as status:
                 return HttpResponse(
-                    "quiz.moe is temporarily unavailable. Come back in 10 minutes!<br>Message:<br> "
+                    "quiz.moe is temporarily unavailable. "
+                    "Come back in 10 minutes!<br>Message:<br> "
                     + status.args[0],
                     status=503,
                 )
 
-        themes = self._apply_themes_filters(
-            themes, openings, endings, spoilers, nsfw
-        )
+        themes = self._apply_themes_filters(themes, openings, endings, spoilers, nsfw)
         theme = random.choice(themes)
 
         # Get a random version of the theme
-        url = random.choice(random.choice(theme["entries"])["videos"])[
+        url = random.choice(random.choice(theme["animethemeentries"])["videos"])[
             "link"
         ].replace("staging.", "")
 
         context = {
             "url": url,
             "theme": theme,
-            "artists": ", ".join(
-                artist["name"] for artist in theme["song"]["artists"]
-            ),
+            "artists": ", ".join(artist["name"] for artist in theme["song"]["artists"]),
             "users": users,
             "openings": openings,
             "endings": endings,
