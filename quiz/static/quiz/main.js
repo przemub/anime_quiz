@@ -82,18 +82,54 @@ document.addEventListener("DOMContentLoaded", function() {
     initColorMode();
 });
 
-function addPlayer() {
+function generateScoreboard(scoreboard) {
+    const results = document.getElementById("results");
+    results.innerHTML = "";
+
+    for (const entry of scoreboard)
+        addPlayer(entry.name, entry.score)
+}
+
+function loadScoreboard() {
+    let scoreboard = sessionStorage.getItem("scoreboard");
+    if (scoreboard !== null)
+        scoreboard = JSON.parse(scoreboard);
+    else
+        scoreboard = [
+            {'name': 'Player 1', 'score': 0},
+            {'name': 'Player 2', 'score': 0},
+            {'name': 'Player 3', 'score': 0},
+            {'name': 'Player 4', 'score': 0},
+        ]
+
+    generateScoreboard(scoreboard);
+}
+
+function saveScoreboard() {
+    scoreboard = [];
+    for (const entry of document.querySelectorAll("ul#results > li")) {
+        const name = entry.querySelector("input").value;
+        const score = entry.querySelector("span#points").value;
+        scoreboard.push({'name': name, 'score': score});
+    }
+
+    sessionStorage.setItem("scoreboard", JSON.stringify(scoreboard));
+}
+
+function addPlayer(name = "New Player", score = 0) {
     const li = document.querySelector(
         "template#results-template"
-    ).content.children[0].firstElementChild.cloneNode(true);
+    ).content.cloneNode(true);
+    li.querySelector("input").value = name;
+    li.querySelector("span#points").value = score;
     document.getElementById("results").appendChild(li);
 }
 
-function removePlayer(element){
-    element.parentNode.parentNode.parentNode.removeChild(element.parentNode.parentNode)
+function removePlayer(element) {
+    element.parentNode.parentNode.parentNode.removeChild(element.parentNode.parentNode);
 }
 
-function clearPlayer(){
+function clearPlayer() {
     sessionStorage.removeItem('results');
     document.getElementById("results-div").innerHTML = document.getElementById('results-template').innerHTML;
 }

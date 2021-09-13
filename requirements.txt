@@ -2,6 +2,7 @@ bugsnag~=4.0.2
 celery~=5.0.5
 Django~=3.1.4
 django_redis~=4.12.1
+hy==0.20.0
 redis~=3.5.3
 uWSGI~=2.0.19.1
 

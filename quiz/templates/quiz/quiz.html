@@ -113,6 +113,7 @@
         <aside class="col-lg-3 col-xxl-2 text-left order-1 order-lg-last ps-4 pe-4" id="results-list">
             <h5>Scoreboard</h5>
             <div id="results-div">
+                <ul class="list-group-flush ps-0" id="results"></ul>
             </div>
 
             <div class="btn-group w-100 ps-2 pe-2">
@@ -128,7 +129,7 @@
     Made with <3 by <a href="https://prem.moe">prem.moe</a>. Hugs to <a href="https://animethemes.moe">animethemes.moe</a> team and <a href="https://github.com/thesadru/animethemes-dl">thesadru</a>.
 </footer>
 
-{% include 'quiz/results_template.html' %}
+{% include 'quiz/results_entry_template.html' %}
 
 <template id="username-template">{% include 'quiz/username.html' with user="" %}</template>
 </body>
