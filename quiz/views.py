@@ -45,7 +45,7 @@ class UserThemesView(View):
     ]
 
     @staticmethod
-    def _get_user_themes(user, statuses):
+    def _get_user_themes(user: str, statuses: list[int]):
         result_key = f"result_{user}_{'-'.join(str(s) for s in statuses)}"
         if result := cache.get(result_key, None):
             return result
