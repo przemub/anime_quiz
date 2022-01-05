@@ -14,6 +14,7 @@
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
+from pprint import pprint
 from unittest import mock
 
 from django.test import TestCase, override_settings
@@ -88,6 +89,7 @@ class AnimeThemesMoeTestCase(TestCase):
 
     def test_request_anime(self):
         anime = request_anime(9253, "Steins;Gate")
+        pprint(anime)
 
         self.assertEquals(len(anime), 5)  # 5 themes for this anime
         for theme in anime:

@@ -87,7 +87,9 @@ class UserThemesView(View):
             raise TaskStatus(f"User {user} has been enqueued just now.")
 
     @staticmethod
-    def _apply_themes_filters(themes, openings, endings, spoilers, nsfw):
+    def _apply_themes_filters(
+            themes, openings, endings, spoilers, nsfw, karaoke
+    ):
         """
         Apply filters to themes.
         Filters: openings, endings, spoilers, NSFW.
@@ -111,9 +113,6 @@ class UserThemesView(View):
                     if entry["nsfw"] is False
                 )
 
-        # Exclude themes with only hentai or spoiler videos
-        themes = [theme for theme in themes if theme["animethemeentries"]]
-
         def check_if_right_type(local_theme):
             if openings and local_theme["type"] == "OP":
                 return True
@@ -122,6 +121,22 @@ class UserThemesView(View):
             return False
 
         themes = list(filter(check_if_right_type, themes))
+
+        if karaoke:
+            for theme in themes:
+                for entry in theme["animethemeentries"]:
+                    entry["videos"] = list(
+                        video
+                        for video in entry["videos"]
+                        if video["lyrics"] is True
+                    )
+                theme["animethemeentries"] = [
+                    entry for entry in theme["animethemeentries"]
+                    if entry["videos"]
+                ]
+
+        # Exclude themes with only hentai or spoiler videos
+        themes = [theme for theme in themes if theme["animethemeentries"]]
 
         return themes
 
@@ -134,6 +149,7 @@ class UserThemesView(View):
         endings = request.GET.get("t-ed", "off") == "on"
         spoilers = request.GET.get("sp", "off") == "on"
         nsfw = default or request.GET.get("nsfw", "on")
+        karaoke = request.GET.get("karaoke", "off") == "on"
 
         # Something must be enabled
         if not (openings or endings):
@@ -204,7 +220,9 @@ class UserThemesView(View):
                     status=503,
                 )
 
-        themes = self._apply_themes_filters(themes, openings, endings, spoilers, nsfw)
+        themes = self._apply_themes_filters(
+            themes, openings, endings, spoilers, nsfw, karaoke
+        )
         theme = random.choice(themes)
 
         # Get a random version of the theme
@@ -221,6 +239,7 @@ class UserThemesView(View):
             "endings": endings,
             "spoilers": spoilers,
             "nsfw": nsfw,
+            "karaoke": karaoke,
             "statuses": statuses,
             "all_statuses": self.ALL_STATUSES,
             "alert": mark_safe(alert),
