@@ -73,6 +73,14 @@ aside#results-list {
     text-align: center;
 }
 
+input {
+    float: none !important;
+}
+
+input[type=checkbox] {
+    vertical-align: sub;
+}
+
 /* Row mode */
 @media (max-width: 991px) {
     aside {
@@ -89,6 +97,14 @@ aside#results-list {
 
 /* Column mode */
 @media (min-width: 992px) {
+    main > div > aside.auto-size {
+        width: 300px;
+    }
+
+    main > div > div.auto-size {
+        width: calc(100% - 600px);
+    }
+
     .screen-size {
         height: 70vh;
     }

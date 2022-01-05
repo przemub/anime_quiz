@@ -50,7 +50,7 @@
 
 <main class="container-fluid">
     <div class="row mt-4">
-        <aside class="col-lg-3 order-last order-lg-first ps-4 pe-4">
+        <aside class="auto-size order-last order-lg-first ps-4 pe-4">
             <h5>Settings</h5>
 
             <form id="settings">
@@ -111,7 +111,7 @@
             </form>
         </aside>
 
-        <div class="col-lg-6 order-first order-lg-1 text-center screen-size">
+        <div class="auto-size order-first order-lg-1 text-center screen-size">
             <video id="player" preload="auto" disablePictureInPicture>
                 <source src="{{ url }}" type="video/webm">
             </video>
@@ -126,14 +126,14 @@
             </div>
         </div>
 
-        <aside class="col-lg-3 text-left order-1 order-lg-last ps-4 pe-4" id="results-list">
+        <aside class="auto-size text-left order-1 order-lg-last ps-4 pe-4" id="results-list">
             <h5>Scoreboard</h5>
             <div id="results-div">
             </div>
 
             <div class="btn-group w-100 ps-2 pe-2">
-                <button id="addPlayerBtn" class="btn btn-outline-success" type="button" onclick="addPlayer()">Add a player</button>
-                <button id="clearPlayerBtn" class="btn btn-outline-danger" type="button" onclick="clearPlayer()">Clear the board</button>
+                <button id="addPlayerBtn" class="btn btn-outline-success" type="button" onclick="addPlayer()">Add a&nbsp;player</button>
+                <button id="clearPlayerBtn" class="btn btn-outline-danger" type="button" onclick="clearPlayer()">Clear the&nbsp;board</button>
             </div>
 
             <img class="mt-4" src="{% static 'quiz/rem-ram.gif' %}" alt="Rem/Ram" id="remram">
