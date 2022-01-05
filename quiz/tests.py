@@ -93,13 +93,15 @@ class AnimeThemesMoeTestCase(TestCase):
 
         self.assertEquals(len(anime), 5)  # 5 themes for this anime
         for theme in anime:
-            self.assertEquals(theme['anime_title'], "Steins;Gate")
+            self.assertEquals(theme["anime_title"], "Steins;Gate")
 
         self.assertEquals(
-            [theme['song']['title'] for theme in anime],
-            ['Hacking to the Gate',
-             'Toki Tsukasadoru Juuni no Meiyaku',
-             'Fake Verthandi',
-             'Sky Clad no Kansokusha',
-             'Another Heaven']
+            [theme["song"]["title"] for theme in anime],
+            [
+                "Hacking to the Gate",
+                "Toki Tsukasadoru Juuni no Meiyaku",
+                "Fake Verthandi",
+                "Sky Clad no Kansokusha",
+                "Another Heaven",
+            ],
         )

@@ -60,8 +60,10 @@ class AnimeThemesDown(AnimeThemesTryLater):
         self.retry_after = retry_after
 
     def message(self):
-        return f"animethemes.moe is down with code {self.status_code}. " \
-               f"Trying again in {self.retry_after} seconds."
+        return (
+            f"animethemes.moe is down with code {self.status_code}. "
+            f"Trying again in {self.retry_after} seconds."
+        )
 
 
 class AnimeSearchResult(TypedDict):
@@ -122,20 +124,20 @@ def request_anime(mal_id: int, title: str) -> list[Theme]:
             "/anime/" + anime["slug"],
             params={
                 "include": "resources,"
-                           "animethemes.animethemeentries.videos,"
-                           "animethemes.song,"
-                           "animethemes.song.artists"
+                "animethemes.animethemeentries.videos,"
+                "animethemes.song,"
+                "animethemes.song.artists"
             },
         )["anime"]
 
         if mal_id in (
-                res["external_id"]
-                for res in anime_full_data["resources"]
-                if res["site"] == "MyAnimeList"
+            res["external_id"]
+            for res in anime_full_data["resources"]
+            if res["site"] == "MyAnimeList"
         ):
             # Add some needed data to each theme
-            for theme in anime_full_data['animethemes']:
-                theme['anime_title'] = title
+            for theme in anime_full_data["animethemes"]:
+                theme["anime_title"] = title
 
-            return anime_full_data['animethemes']
+            return anime_full_data["animethemes"]
     return []

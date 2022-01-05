@@ -52,7 +52,9 @@ class UserThemesView(View):
 
         started_key = f"started_user_{user}"
         if cache.get(started_key, False):
-            raise TaskStatus(f"User {user} has been already enqueued. Please wait.")
+            raise TaskStatus(
+                f"User {user} has been already enqueued. Please wait."
+            )
 
         mal_key = f"user_mal_{user}"
         mal_data = cache.get(mal_key, None)
@@ -88,7 +90,7 @@ class UserThemesView(View):
 
     @staticmethod
     def _apply_themes_filters(
-            themes, openings, endings, spoilers, nsfw, karaoke
+        themes, openings, endings, spoilers, nsfw, karaoke
     ):
         """
         Apply filters to themes.
@@ -131,7 +133,8 @@ class UserThemesView(View):
                         if video["lyrics"] is True
                     )
                 theme["animethemeentries"] = [
-                    entry for entry in theme["animethemeentries"]
+                    entry
+                    for entry in theme["animethemeentries"]
                     if entry["videos"]
                 ]
 
@@ -204,7 +207,8 @@ class UserThemesView(View):
                 except TaskStatus as status:
                     return HttpResponse(
                         "quiz.moe is temporarily unavailable. "
-                        "Come back in 10 minutes!<br>Message:<br> " + status.args[0],
+                        "Come back in 10 minutes!<br>Message:<br> "
+                        + status.args[0],
                         status=503,
                     )
 
@@ -226,14 +230,16 @@ class UserThemesView(View):
         theme = random.choice(themes)
 
         # Get a random version of the theme
-        url = random.choice(random.choice(theme["animethemeentries"])["videos"])[
-            "link"
-        ].replace("staging.", "")
+        url = random.choice(
+            random.choice(theme["animethemeentries"])["videos"]
+        )["link"].replace("staging.", "")
 
         context = {
             "url": url,
             "theme": theme,
-            "artists": ", ".join(artist["name"] for artist in theme["song"]["artists"]),
+            "artists": ", ".join(
+                artist["name"] for artist in theme["song"]["artists"]
+            ),
             "users": users,
             "openings": openings,
             "endings": endings,
