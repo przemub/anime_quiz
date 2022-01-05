@@ -59,10 +59,7 @@ LOGGING = {
             "handlers": ["console"],
             "level": "INFO",
         },
-        "animethemes-dl": {
-            "handlers": ["console"],
-            "level": "INFO"
-        }
+        "animethemes-dl": {"handlers": ["console"], "level": "INFO"},
     },
 }
 
@@ -163,12 +160,14 @@ CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://redis:6379/2",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient"
-        },
-        "KEY_PREFIX": "quiz_cache"
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+        "KEY_PREFIX": "quiz_cache",
     }
 }
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_AGE = 60 * 60 * 24
 
 CELERY_TIMEZONE = "Europe/London"
 CELERY_TASK_TRACK_STARTED = True

@@ -20,20 +20,20 @@ from .settings import *  # noqa
 
 DEBUG = False
 
-if os.environ.get('QUIZ_SECRET_KEY', None):
+if os.environ.get("QUIZ_SECRET_KEY", None):
     SECRET_KEY = os.environ["QUIZ_SECRET_KEY"]
 else:
     raise Exception("QUIZ_SECRET_KEY environment variable is not set!")
 
-if os.environ.get('QUIZ_BUGSNAG', None):
+if os.environ.get("QUIZ_BUGSNAG", None):
     BUGSNAG = {
-        'api_key': os.environ["QUIZ_BUGSNAG"],
-        'project_root': '/usr/src/app',
+        "api_key": os.environ["QUIZ_BUGSNAG"],
+        "project_root": "/usr/src/app",
     }
 
     LOGGING["handlers"]["bugsnag"] = {
-        'level': 'INFO',
-        'class': 'bugsnag.handlers.BugsnagHandler',
+        "level": "INFO",
+        "class": "bugsnag.handlers.BugsnagHandler",
     }
     LOGGING["loggers"]["django"]["handlers"].append("bugsnag")
 

@@ -14,7 +14,6 @@
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
-
 import random as random_module
 
 from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS, MyanimelistException
@@ -227,7 +226,19 @@ class UserThemesView(View):
         themes = self._apply_themes_filters(
             themes, openings, endings, spoilers, nsfw, karaoke
         )
+
+        # Remove themes which appeared lastly, and choose one left!
+        last_chosen = request.session.get("last_chosen", [])
+        last_chosen_max_count = len(themes) // 2 - 1
+        last_chosen = last_chosen[-last_chosen_max_count:]
+
+        last_chosen_set = set(last_chosen)
+        themes = [
+            theme for theme in themes if theme["id"] not in last_chosen_set
+        ]
         theme = random.choice(themes)
+        last_chosen.append(theme["id"])
+        request.session["last_chosen"] = last_chosen
 
         # Get a random version of the theme
         url = random.choice(
