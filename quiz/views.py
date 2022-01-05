@@ -44,14 +44,15 @@ class UserThemesView(View):
         "Plan to Watch",
     ]
 
-    def _get_user_themes(self, user, statuses):
+    @staticmethod
+    def _get_user_themes(user, statuses):
         result_key = f"result_{user}_{'-'.join(str(s) for s in statuses)}"
         if result := cache.get(result_key, None):
             return result
 
         started_key = f"started_user_{user}"
         if cache.get(started_key, False):
-            raise TaskStatus(f"User {user} has been already enqueued. Please " "wait.")
+            raise TaskStatus(f"User {user} has been already enqueued. Please wait.")
 
         mal_key = f"user_mal_{user}"
         mal_data = cache.get(mal_key, None)
@@ -78,13 +79,21 @@ class UserThemesView(View):
             cache.set(result_key, cache_hits, 60 * 60 * 24 * 7)
             return cache_hits
         elif cache.get(started_key, False):
+<<<<<<< HEAD
             raise TaskStatus(f"User {user} has been already enqueued. Please " "wait.")
+=======
+            raise TaskStatus(f"User {user} has been already enqueued. Please wait.")
+>>>>>>> 786e566 (Minor beautifying)
         else:
             GetUserThemesTask().delay(user, cache_misses)
             raise TaskStatus(f"User {user} has been enqueued just now.")
 
-    def _apply_themes_filters(self, themes, openings, endings, spoilers, nsfw):
-        """Apply filters to themes. Filters: openings, endings, spoilers, NSFW."""
+    @staticmethod
+    def _apply_themes_filters(themes, openings, endings, spoilers, nsfw):
+        """
+        Apply filters to themes.
+        Filters: openings, endings, spoilers, NSFW.
+        """
 
         if not spoilers:
             # If asked, exclude videos with spoilers.
@@ -180,8 +189,8 @@ class UserThemesView(View):
                     themes = self._get_user_themes("przemub", statuses)
                 except TaskStatus as status:
                     return HttpResponse(
-                        "quiz.moe is temporarily unavailable. Come back in 10 minutes!<br>Message:<br> "
-                        + status.args[0],
+                        "quiz.moe is temporarily unavailable. "
+                        "Come back in 10 minutes!<br>Message:<br> " + status.args[0],
                         status=503,
                     )
 
@@ -192,8 +201,12 @@ class UserThemesView(View):
             except TaskStatus as status:
                 return HttpResponse(
                     "quiz.moe is temporarily unavailable. "
+<<<<<<< HEAD
                     "Come back in 10 minutes!<br>Message:<br> "
                     + status.args[0],
+=======
+                    "Come back in 10 minutes!<br>Message:<br> " + status.args[0],
+>>>>>>> 786e566 (Minor beautifying)
                     status=503,
                 )
 

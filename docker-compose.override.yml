@@ -1,0 +1,7 @@
+services:
+  anime_quiz:
+    volumes:
+      - .:/usr/src/app:ro
+  celery_worker:
+    volumes:
+      - .:/usr/src/app:ro
