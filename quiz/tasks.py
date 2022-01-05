@@ -21,7 +21,7 @@ from celery.utils.log import get_task_logger
 from django.core.cache import cache
 
 from anime_quiz.celery import app
-from quiz.animethemes import request_anime, AnimeThemesTimeout
+from quiz.animethemes import request_anime, AnimeThemesThrottled
 
 logger = get_task_logger(__name__)
 
@@ -63,10 +63,12 @@ class GetUserThemesTask(app.Task):
                     )
                     logger.info(f"{count}/{total}")
                     count += 1
-                except AnimeThemesTimeout:
+                except AnimeThemesThrottled as e:
                     new_themes.append((anime_id, anime_title))
-                    logger.info("Timeout. Trying again in 30 seconds.")
-                    time.sleep(30)
+                    logger.info(
+                        f"Throttled. Trying again in {e.retry_after} seconds."
+                    )
+                    time.sleep(e.retry_after)
 
             themes = new_themes
             new_themes = []

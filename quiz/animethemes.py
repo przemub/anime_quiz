@@ -27,8 +27,14 @@ SESSION.headers = {
 MISSING_IN_ANIMETHEMES = 1
 
 
-class AnimeThemesTimeout(Exception):
+class AnimeThemesThrottled(Exception):
     """The exception raised when there is a 429 returned from the API."""
+
+    def __init__(self, retry_after: int):
+        """
+        :param retry_after: Seconds to wait requested by the server.
+        """
+        self.retry_after = retry_after
 
 
 class AnimeSearchResult(TypedDict):
@@ -68,7 +74,7 @@ def _query_api(path: str, params: Dict[str, GET_PARAM]) -> dict:
     r = SESSION.get(BASE + path, params=params)
 
     if r.status_code == 429:
-        raise AnimeThemesTimeout()
+        raise AnimeThemesThrottled(int(r.headers["Retry-After"]))
     else:
         r.raise_for_status()
 
