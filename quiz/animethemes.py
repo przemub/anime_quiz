@@ -27,7 +27,19 @@ SESSION.headers = {
 MISSING_IN_ANIMETHEMES = 1
 
 
-class AnimeThemesThrottled(Exception):
+class AnimeThemesTryLater(Exception):
+    """Request the caller to try after retry_after seconds."""
+
+    retry_after: int
+
+    def __init__(self):
+        raise NotImplementedError()
+
+    def message(self) -> str:
+        raise NotImplementedError()
+
+
+class AnimeThemesThrottled(AnimeThemesTryLater):
     """The exception raised when there is a 429 returned from the API."""
 
     def __init__(self, retry_after: int):
@@ -35,6 +47,21 @@ class AnimeThemesThrottled(Exception):
         :param retry_after: Seconds to wait requested by the server.
         """
         self.retry_after = retry_after
+
+    def message(self):
+        return f"Throttled. Trying again in {self.retry_after} seconds."
+
+
+class AnimeThemesDown(AnimeThemesTryLater):
+    """animethemes.moe is down. Try later."""
+
+    def __init__(self, status_code: int, retry_after: int = 30):
+        self.status_code = status_code
+        self.retry_after = retry_after
+
+    def message(self):
+        return f"animethemes.moe is down with code {self.status_code}. " \
+               f"Trying again in {self.retry_after} seconds."
 
 
 class AnimeSearchResult(TypedDict):
@@ -75,6 +102,8 @@ def _query_api(path: str, params: Dict[str, GET_PARAM]) -> dict:
 
     if r.status_code == 429:
         raise AnimeThemesThrottled(int(r.headers["Retry-After"]))
+    elif r.status_code in (502, 504):
+        raise AnimeThemesDown(r.status_code)
     else:
         r.raise_for_status()
 

@@ -79,11 +79,9 @@ class UserThemesView(View):
             cache.set(result_key, cache_hits, 60 * 60 * 24 * 7)
             return cache_hits
         elif cache.get(started_key, False):
-<<<<<<< HEAD
-            raise TaskStatus(f"User {user} has been already enqueued. Please " "wait.")
-=======
-            raise TaskStatus(f"User {user} has been already enqueued. Please wait.")
->>>>>>> 786e566 (Minor beautifying)
+            raise TaskStatus(
+                f"User {user} has been already enqueued. Please wait."
+            )
         else:
             GetUserThemesTask().delay(user, cache_misses)
             raise TaskStatus(f"User {user} has been enqueued just now.")
@@ -201,12 +199,8 @@ class UserThemesView(View):
             except TaskStatus as status:
                 return HttpResponse(
                     "quiz.moe is temporarily unavailable. "
-<<<<<<< HEAD
                     "Come back in 10 minutes!<br>Message:<br> "
                     + status.args[0],
-=======
-                    "Come back in 10 minutes!<br>Message:<br> " + status.args[0],
->>>>>>> 786e566 (Minor beautifying)
                     status=503,
                 )
 
