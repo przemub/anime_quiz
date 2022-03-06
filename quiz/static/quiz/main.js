@@ -1,5 +1,5 @@
 /*
- *     Copyright (c) 2021 Przemysław Buczkowski
+ *     Copyright (c) 2021-22 Przemysław Buczkowski
  *
  *     This file is part of Anime Quiz.
  *
@@ -39,6 +39,20 @@ document.addEventListener("DOMContentLoaded", function() {
     const count = document.getElementById('count');
     const details = document.getElementById('details');
     const player = document.getElementById('player');
+    const lyrics_text = document.getElementById('lyrics-text');
+    const lyrics_hidden = document.getElementById('lyrics-hidden');
+    const lyrics_tab = document.getElementById('lyrics-tab');
+    const settings_tab = document.getElementById('settings-tab');
+
+    // Set up tab persistence
+    if (sessionStorage.getItem("left_tab") === "lyrics")
+        lyrics_tab.click();
+    lyrics_tab.addEventListener("click", () => {
+        sessionStorage.setItem("left_tab", "lyrics");
+    });
+    settings_tab.addEventListener("click", () => {
+        sessionStorage.setItem("left_tab", "settings");
+    });
 
     let time = parseInt(sessionStorage.getItem("time"));
     if (isNaN(time)) time = 10;
@@ -58,6 +72,8 @@ document.addEventListener("DOMContentLoaded", function() {
             else {
                 player.style.visibility = 'visible';
                 details.style.visibility = 'visible';
+                lyrics_text.style.display = '';
+                lyrics_hidden.style.display = 'none';
                 count.innerHTML = "";
             }
         }
@@ -76,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     player.addEventListener('canplaythrough', play);
     player.addEventListener('ended', () => {
-        document.getElementById('settings').submit();
+        document.getElementById('settings-form').submit();
     });
     player.addEventListener('waiting', () => { waiting = true; })
     player.addEventListener('playing', () => { waiting = false; })

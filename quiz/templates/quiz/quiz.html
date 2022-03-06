@@ -50,73 +50,92 @@
 
 <main class="container-fluid">
     <div class="row mt-4">
-        <aside class="auto-size order-last order-lg-first ps-4 pe-4">
-            <h5>Settings</h5>
+        <aside class="auto-size order-last order-lg-first ps-4 pe-4 tab-content">
+            <ul class="nav nav-tabs" id="left_tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="true">Settings</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="lyrics-tab" data-bs-toggle="tab" data-bs-target="#lyrics" type="button" role="tab" aria-controls="lyrics" aria-selected="false">Lyrics</button>
+                </li>
+            </ul>
+            <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                <form id="settings-form">
+                <div class="form-group pb-2" id="types">
+                        <label for="types" class="form-label">Types:</label>
 
-            <form id="settings">
-            <div class="form-group pb-2" id="types">
-                    <label for="types" class="form-label">Types:</label>
-
-                    <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="type-openings" name="t-op" {% if openings %}checked{% endif %}>
-                    <label class="form-check-label" for="type-openings">Openings</label>
-                    </div>
-
-                    <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="type-endings" name="t-ed" {% if endings %}checked{% endif %}>
-                    <label class="form-check-label" for="type-endings">Endings</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="type-spoilers" name="sp" {% if spoilers %}checked{% endif %}>
-                        <label class="form-check-label" for="type-spoilers">Spoilers</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="type-nsfw" name="nsfw" {% if nsfw %}checked{% endif %}>
-                        <label class="form-check-label" for="type-nsfw">NSFW</label>
-                    </div>
-
-                    <!--
-                    Hidden because the karaoke video collection is very small. Add &karaoke=on to the URL to try it out!
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="type-karaoke" name="karaoke" {% if karaoke %}checked{% endif %}>
-                        <label class="form-check-label" for="type-karaoke">Karaoke</label>
-                    </div>
-                    -->
-            </div>
-
-            <div class="form-group pb-2" id="lists">
-                <label for="lists" class="form-label">Lists:</label>
-                {% for status in all_statuses %}
-                    {% if status %}
                         <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="list-{{ forloop.counter }}" name="l-{{ forloop.counter }}" {% if forloop.counter in statuses %}checked{% endif %}>
-                                <label class="form-check-label" for="list-{{ forloop.counter }}">{{ status }}</label>
+                        <input type="checkbox" class="form-check-input" id="type-openings" name="t-op" {% if openings %}checked{% endif %}>
+                        <label class="form-check-label" for="type-openings">Openings</label>
                         </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
 
-            <div class="form-group">
-                <label for="time-range" class="form-label">Time to guess</label>
-                <input type="range" class="form-range" id="time-range" min="0" max="14" value="10" step="1">
-                <div id="time-range-out-div">
-                    <output id="time-range-out">10</output> s
+                        <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="type-endings" name="t-ed" {% if endings %}checked{% endif %}>
+                        <label class="form-check-label" for="type-endings">Endings</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="type-spoilers" name="sp" {% if spoilers %}checked{% endif %}>
+                            <label class="form-check-label" for="type-spoilers">Spoilers</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="type-nsfw" name="nsfw" {% if nsfw %}checked{% endif %}>
+                            <label class="form-check-label" for="type-nsfw">NSFW</label>
+                        </div>
+
+                        <!--
+                        Hidden because the karaoke video collection is very small. Add &karaoke=on to the URL to try it out!
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="type-karaoke" name="karaoke" {% if karaoke %}checked{% endif %}>
+                            <label class="form-check-label" for="type-karaoke">Karaoke</label>
+                        </div>
+                        -->
                 </div>
+
+                <div class="form-group pb-2" id="lists">
+                    <label for="lists" class="form-label">Lists:</label>
+                    {% for status in all_statuses %}
+                        {% if status %}
+                            <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="list-{{ forloop.counter }}" name="l-{{ forloop.counter }}" {% if forloop.counter in statuses %}checked{% endif %}>
+                                    <label class="form-check-label" for="list-{{ forloop.counter }}">{{ status }}</label>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="time-range" class="form-label">Time to guess</label>
+                    <input type="range" class="form-range" id="time-range" min="0" max="14" value="10" step="1">
+                    <div id="time-range-out-div">
+                        <output id="time-range-out">10</output> s
+                    </div>
+                </div>
+
+                 <div class="form-group">
+                   <label for="user" class="form-label">MAL usernames:</label>
+                     {% for user in users %}
+                         {% include 'quiz/username.html' with user=user %}
+                     {% endfor %}
+                    <button id="addUserBtn" class="btn btn-outline-success w-100 mt-1" type="button" onclick="addUser()">Add a MAL user</button>
+                 </div>
+
+                <input type="hidden" name="default" value="no">
+                <button class="btn btn-outline-primary w-100 mt-2" type="submit">Play!</button>
+                </form>
             </div>
+            <div class="tab-pane fade" id="lyrics" role="tabpanel" aria-labelledby="lyrics-tab">
+                <div id="lyrics-text" style="display: none;">
+                    {{ lyrics }}
+                </div>
+                <div id="lyrics-hidden">
+                    Hidden!
+                </div>
 
-             <div class="form-group">
-               <label for="user" class="form-label">MAL usernames:</label>
-                 {% for user in users %}
-                     {% include 'quiz/username.html' with user=user %}
-                 {% endfor %}
-                <button id="addUserBtn" class="btn btn-outline-success w-100 mt-1" type="button" onclick="addUser()">Add a MAL user</button>
-             </div>
-
-            <input type="hidden" name="default" value="no">
-            <button class="btn btn-outline-primary w-100 mt-2" type="submit">Play!</button>
-            </form>
+                <br><br>
+                From <a href="https://www.animelyrics.com/">animelyrics.com</a>.
+            </div>
         </aside>
 
         <div class="auto-size order-first order-lg-1 text-center screen-size">

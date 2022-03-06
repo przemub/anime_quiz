@@ -1,4 +1,4 @@
-#      Copyright (c) 2021 Przemysław Buczkowski
+#      Copyright (c) 2021-22 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #

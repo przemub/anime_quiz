@@ -17,8 +17,10 @@
 
 import time
 
+import animelyrics
 from celery.utils.log import get_task_logger
 from django.core.cache import cache
+from first import first
 
 from anime_quiz.celery import app
 from quiz.animethemes import request_anime, AnimeThemesTryLater
@@ -63,6 +65,8 @@ class GetUserThemesTask(app.Task):
                     )
                     logger.info(f"{count}/{total}")
                     count += 1
+
+                    GetLyricsTask().delay(result)
                 except AnimeThemesTryLater as e:
                     new_themes.append((anime_id, anime_title))
                     logger.info(e.message())
@@ -72,4 +76,35 @@ class GetUserThemesTask(app.Task):
             new_themes = []
 
 
+class GetLyricsTask(app.Task):
+    name = "get_lyrics_task"
+
+    def run(self, theme):
+        cache_key = f"lyrics-{theme['song']['id']}"
+
+        if lyrics := cache.get(cache_key, None):
+            return lyrics
+
+        queries = [
+            f'"{theme["anime_title"]}" "{theme["song"]["title"]}"',
+            f"{theme['anime_title']} {theme['song']['title']}",
+            f'"{theme["song"]["title"]}"',
+            theme["song"]["title"]
+        ]
+
+        def run_query(query: str):
+            try:
+                return animelyrics.search_lyrics(query, lang="jp")
+            except animelyrics.NoLyricsFound:
+                return None
+
+        lyrics = first(run_query(q) for q in queries) or "Not found"
+        lyrics = lyrics.replace("\n", "<br>")
+
+        cache.set(cache_key, lyrics, 60 * 60 * 24 * 30)
+
+        return lyrics
+
+
+app.tasks.register(GetLyricsTask)
 app.tasks.register(GetUserThemesTask)

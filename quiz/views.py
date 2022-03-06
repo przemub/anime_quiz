@@ -1,4 +1,4 @@
-#      Copyright (c) 2021 Przemysław Buczkowski
+#      Copyright (c) 2021-22 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -16,6 +16,7 @@
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 import random as random_module
 
+import animelyrics
 from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS, MyanimelistException
 from animethemes_dl.parsers.myanimelist import get_raw_mal, filter_mal
 from django.core.cache import cache
@@ -23,8 +24,9 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from django.views.generic.base import View
+from first import first
 
-from .tasks import GetUserThemesTask
+from .tasks import GetUserThemesTask, GetLyricsTask
 
 random = random_module.SystemRandom()
 
@@ -142,6 +144,7 @@ class UserThemesView(View):
 
         return themes
 
+
     def get(self, request):
         users = request.GET.getlist("user", ["przemub"])
 
@@ -245,6 +248,8 @@ class UserThemesView(View):
             random.choice(theme["animethemeentries"])["videos"]
         )["link"].replace("staging.", "")
 
+        lyrics = GetLyricsTask().run(theme)
+
         context = {
             "url": url,
             "theme": theme,
@@ -258,6 +263,7 @@ class UserThemesView(View):
             "nsfw": nsfw,
             "karaoke": karaoke,
             "statuses": statuses,
+            "lyrics": mark_safe(lyrics),
             "all_statuses": self.ALL_STATUSES,
             "alert": mark_safe(alert),
         }
