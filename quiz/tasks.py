@@ -1,4 +1,4 @@
-#      Copyright (c) 2021 Przemysław Buczkowski
+#      Copyright (c) 2021-22 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -16,6 +16,7 @@
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 
 import time
+from urllib.error import HTTPError
 
 import animelyrics
 from celery.utils.log import get_task_logger
@@ -97,6 +98,10 @@ class GetLyricsTask(app.Task):
                 return animelyrics.search_lyrics(query, lang="jp")
             except animelyrics.NoLyricsFound:
                 return None
+            except HTTPError as he:
+                if he.code == 429:
+                    return "Not found yet"
+                raise Exception("Failed to query lyrics") from he
 
         lyrics = first(run_query(q) for q in queries) or "Not found"
         lyrics = lyrics.replace("\n", "<br>")
