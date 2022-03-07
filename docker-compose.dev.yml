@@ -2,6 +2,8 @@ services:
   anime_quiz:
     volumes:
       - .:/usr/src/app:ro
+    environment:
+      - DJANGO_SETTINGS_MODULE=anime_quiz.settings
   celery_worker:
     volumes:
       - .:/usr/src/app:ro
