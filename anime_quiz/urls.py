@@ -30,7 +30,9 @@ Including another URLconf
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 
-from django.contrib import admin
 from django.urls import path, include
 
-urlpatterns = [path("admin/", admin.site.urls), path("", include("quiz.urls"))]
+urlpatterns = [
+    # path("admin/", admin.site.urls),
+    path("", include("quiz.urls"))
+]
