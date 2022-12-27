@@ -14,7 +14,7 @@
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
-
+import random
 import time
 from urllib.error import HTTPError
 
@@ -25,6 +25,8 @@ from first import first
 
 from anime_quiz.celery import app
 from quiz.animethemes import request_anime, AnimeThemesTryLater
+
+from pprint import pprint
 
 logger = get_task_logger(__name__)
 
@@ -67,7 +69,8 @@ class GetUserThemesTask(app.Task):
                     logger.info(f"{count}/{total}")
                     count += 1
 
-                    GetLyricsTask().delay(result)
+                    for theme in result:
+                        GetLyricsTask().delay(theme)
                 except AnimeThemesTryLater as e:
                     new_themes.append((anime_id, anime_title))
                     logger.info(e.message())

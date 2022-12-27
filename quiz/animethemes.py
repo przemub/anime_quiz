@@ -18,7 +18,7 @@ from typing import TypedDict, List, Dict, Optional, Union
 
 import requests
 
-BASE = "https://staging.animethemes.moe/api"
+BASE = "https://api.animethemes.moe"
 SESSION = requests.session()
 SESSION.headers = {
     "User-Agent": "quiz.moe (contact: prem@prem.moe)",
@@ -100,6 +100,8 @@ GET_PARAM = Union[str, int, float, List[Union[str, int, float]]]
 
 
 def _query_api(path: str, params: Dict[str, GET_PARAM]) -> dict:
+    if path[0] != "/":
+        path = "/" + path
     r = SESSION.get(BASE + path, params=params)
 
     if r.status_code == 429:
