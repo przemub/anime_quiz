@@ -44,4 +44,4 @@ To rebuild, run `docker-compose build` beforehand.
 
 ### Develop
 
-PRs are welcome! The code is licenced under GNU Affero Public Licence 3.
+PRs are welcome! The code is licensed under GNU Affero Public Licence 3.
