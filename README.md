@@ -35,6 +35,7 @@ If you just want to play, go to [quiz.moe](https://quiz.moe).
 If you want to develop or self-host, the recommended way is to
 install [Docker](https://docker.com) with Docker Compose and run:
 ```shell
+docker network create server
 docker-compose up -d
 docker-compose exec anime_quiz python manage.py collectstatic
 ```

@@ -1,4 +1,4 @@
-#      Copyright (c) 2021-22 Przemysław Buczkowski
+#      Copyright (c) 2021-24 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -14,7 +14,6 @@
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
-import random
 import time
 from urllib.error import HTTPError
 
@@ -25,8 +24,6 @@ from first import first
 
 from anime_quiz.celery import app
 from quiz.animethemes import request_anime, AnimeThemesTryLater
-
-from pprint import pprint
 
 logger = get_task_logger(__name__)
 
@@ -114,5 +111,5 @@ class GetLyricsTask(app.Task):
         return lyrics
 
 
-app.tasks.register(GetLyricsTask)
-app.tasks.register(GetUserThemesTask)
+app.register_task(GetLyricsTask())
+app.register_task(GetUserThemesTask())
