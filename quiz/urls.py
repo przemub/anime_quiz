@@ -1,4 +1,4 @@
-#      Copyright (c) 2021 Przemysław Buczkowski
+#      Copyright (c) 2021-24 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -14,8 +14,8 @@
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
-
-from django.urls import path
+from django.conf import settings
+from django.urls import include, path
 from django.views.generic.base import TemplateView
 
 from quiz.views import UserThemesView
@@ -29,3 +29,9 @@ urlpatterns = [
         ),
     ),
 ]
+
+if settings.TASK_BACKEND == "gcp":
+    from quiz.gcp import TaskView
+
+    urlpatterns += [path(r"tasks/<task_name>", TaskView.as_view(), name="tasks-endpoint")]
+

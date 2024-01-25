@@ -9,8 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
-#      Copyright (c) 2021 Przemysław Buczkowski
+#      Copyright (c) 2021-2024 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -26,6 +25,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
+
+import os
 
 from pathlib import Path
 
@@ -160,7 +161,7 @@ STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesSto
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis:6379/2",
+        "LOCATION": os.getenv("REDIS_LOCATION", "redis://redis:6379/2"),
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
         "KEY_PREFIX": "quiz_cache",
     }
@@ -170,6 +171,10 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_AGE = 60 * 60 * 24
 
+TASK_BACKEND = "celery"
+
 CELERY_TIMEZONE = "Europe/London"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 60 * 60 * 6
+
+INTERNAL_IPS = os.getenv("INTERNAL_IPS", "192.168.1.1").split(",")

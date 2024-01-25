@@ -1,4 +1,4 @@
-#      Copyright (c) 2021 Przemysław Buczkowski
+#      Copyright (c) 2021-24 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -14,8 +14,6 @@
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
-import os
-
 from .settings import *  # noqa
 
 DEBUG = False
@@ -37,4 +35,4 @@ if os.environ.get("QUIZ_BUGSNAG", None):
     }
     LOGGING["loggers"]["django"]["handlers"].append("bugsnag")
 
-MIDDLEWARE += ["bugsnag.django.middleware.BugsnagMiddleware"]
+    MIDDLEWARE += ["bugsnag.django.middleware.BugsnagMiddleware"]
