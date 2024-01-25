@@ -42,7 +42,7 @@ class MyAnimeListTestCase(TestCase):
         with self.assertRaises(TaskStatus):
             UserThemesView._get_user_themes("quiz_moe_testing", [1])
         mock_task.assert_called_once_with(
-            user="quiz_moe_testing", themes=[(5114, "Fullmetal Alchemist: Brotherhood")]
+            "quiz_moe_testing", [(5114, "Fullmetal Alchemist: Brotherhood")]
         )
 
     @mock.patch("quiz.views.GetUserThemesTask.delay")
@@ -54,8 +54,8 @@ class MyAnimeListTestCase(TestCase):
         with self.assertRaises(TaskStatus):
             UserThemesView._get_user_themes("quiz_moe_testing", [2])
         mock_task.assert_called_once_with(
-            user="quiz_moe_testing",
-            themes=[
+            "quiz_moe_testing",
+            [
                 (17074, "Monogatari Series: Second Season"),
                 (9253, "Steins;Gate"),
                 (7785, "Yojouhan Shinwa Taikei"),
@@ -71,8 +71,8 @@ class MyAnimeListTestCase(TestCase):
         with self.assertRaises(TaskStatus):
             UserThemesView._get_user_themes("quiz_moe_testing", [1, 2])
         mock_task.assert_called_once_with(
-            user="quiz_moe_testing",
-            themes=[
+            "quiz_moe_testing",
+            [
                 (5114, "Fullmetal Alchemist: Brotherhood"),
                 (17074, "Monogatari Series: Second Season"),
                 (9253, "Steins;Gate"),

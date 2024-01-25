@@ -2,9 +2,7 @@ animelyrics==0.1.0
 bugsnag~=4.6.1
 celery~=5.3.6
 Django~=4.2.9
-django-google-cloud-tasks==2.8.2
 django_redis~=5.4.0
-google-cloud-logging
 first==2.0.2
 redis~=5.0.1
 requests~=2.31.0

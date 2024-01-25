@@ -1,4 +1,4 @@
-#      Copyright (c) 2021-24 Przemysław Buczkowski
+#      Copyright (c) 2021 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -22,7 +22,7 @@ from celery import Celery
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "anime_quiz.settings")
 
-app = Celery("anime_quiz", broker=os.getenv("REDIS_LOCATION", "redis://redis:6379"))
+app = Celery("anime_quiz", broker="redis://redis")
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.

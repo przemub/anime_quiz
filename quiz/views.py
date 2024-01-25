@@ -1,4 +1,4 @@
-#      Copyright (c) 2021-24 Przemysław Buczkowski
+#      Copyright (c) 2021-22 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -16,6 +16,7 @@
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 import random as random_module
 
+import animelyrics
 from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS, MyanimelistException
 from animethemes_dl.parsers.myanimelist import get_raw_mal, filter_mal
 from django.core.cache import cache
@@ -23,6 +24,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from django.views.generic.base import View
+from first import first
 
 from .tasks import GetUserThemesTask, GetLyricsTask
 
@@ -84,7 +86,7 @@ class UserThemesView(View):
                 f"User {user} has been already enqueued. Please wait."
             )
         else:
-            GetUserThemesTask().delay(user=user, themes=cache_misses)
+            GetUserThemesTask().delay(user, cache_misses)
             raise TaskStatus(f"User {user} has been enqueued just now.")
 
     @staticmethod
@@ -141,6 +143,7 @@ class UserThemesView(View):
         themes = [theme for theme in themes if theme["animethemeentries"]]
 
         return themes
+
 
     def get(self, request):
         users = request.GET.getlist("user", ["przemub"])
@@ -245,7 +248,7 @@ class UserThemesView(View):
             random.choice(theme["animethemeentries"])["videos"]
         )["link"].replace("staging.", "")
 
-        lyrics = GetLyricsTask().run(theme=theme)
+        lyrics = GetLyricsTask().run(theme)
 
         context = {
             "url": url,
