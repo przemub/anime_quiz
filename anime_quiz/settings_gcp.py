@@ -1,4 +1,4 @@
-#      Copyright (c) 2021 Przemysław Buczkowski
+#      Copyright (c) 2024 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -15,6 +15,19 @@
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 
-from django.db import models
+import google.cloud.logging
 
-# Create your models here.
+from .settings import *  # noqa
+
+TASK_BACKEND = "gcp"
+INSTALLED_APPS += ["django_cloud_tasks"]
+REST_FRAMEWORK = {}
+DJANGO_CLOUD_TASKS_APP_NAME = "quiz-moe"
+
+# Close Redis connections, so we don't run out of connections on free-tier Redis Cloud
+DJANGO_REDIS_CLOSE_CONNECTION = True
+
+# Set up logging
+
+client = google.cloud.logging.Client()
+client.setup_logging()

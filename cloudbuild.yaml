@@ -1,0 +1,31 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args: [ '-c', 'docker pull ${_REGION}-docker.pkg.dev/${PROJECT_ID}/quizmoe/quizmoe || exit 0' ]
+  id: Download cache
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+    'build',
+    '-t',
+    '${_REGION}-docker.pkg.dev/${PROJECT_ID}/quizmoe/quizmoe',
+    '--cache-from',
+    '${_REGION}-docker.pkg.dev/${PROJECT_ID}/quizmoe/quizmoe',
+    '.'
+  ]
+  id: Build
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'europe-west1-docker.pkg.dev/${PROJECT_ID}/quizmoe/quizmoe']
+  id: Push
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+  args: [
+    "run",
+    "services",
+    "update",
+    "quizmoe",
+    "--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/quizmoe/quizmoe",
+    "--region=${_REGION}"
+  ]
+  id: Deploy
+  entrypoint: gcloud
+options:
+  logging: CLOUD_LOGGING_ONLY
