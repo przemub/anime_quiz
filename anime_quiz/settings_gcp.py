@@ -19,6 +19,13 @@ import google.cloud.logging
 
 from .settings import *  # noqa
 
+DEBUG = False
+
+if os.environ.get("QUIZ_SECRET_KEY", None):
+    SECRET_KEY = os.environ["QUIZ_SECRET_KEY"]
+else:
+    raise Exception("QUIZ_SECRET_KEY environment variable is not set!")
+
 TASK_BACKEND = "gcp"
 INSTALLED_APPS += ["django_cloud_tasks"]
 REST_FRAMEWORK = {}
