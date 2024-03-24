@@ -118,7 +118,7 @@ def request_anime(mal_id: int, title: str) -> list[Theme]:
     """Looks up a MAL id on animethemes and returns an animethemes id."""
 
     animes: List[AnimeSearchResult] = _query_api(
-        "/search/", params={"q": title}
+        "/search/", params={"q": title, "fields[search]": "anime"}
     )["search"]["anime"]
 
     for anime in animes:
