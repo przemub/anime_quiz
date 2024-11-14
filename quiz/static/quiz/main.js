@@ -81,6 +81,8 @@ async function loadNextSong() {
     }
 
     player_div.innerHTML = await response.text();
+    play_button.disabled = false;
+    play_button.innerText = "Play!"
     initializePlayer();
 }
 
