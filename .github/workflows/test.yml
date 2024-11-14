@@ -13,10 +13,10 @@ jobs:
         run: >
           touch .env &&
           docker network create server &&
-          docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+          docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
       - name: Check running containers
-        run: docker-compose -f docker-compose.yml -f docker-compose.dev.yml ps -a
+        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml ps -a
       - name: Check logs
-        run: docker-compose -f docker-compose.yml -f docker-compose.dev.yml logs
+        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml logs
       - name: Run test suite
-        run: docker-compose -f docker-compose.yml -f docker-compose.dev.yml exec -T anime_quiz python manage.py test
+        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml exec -T anime_quiz python manage.py test
