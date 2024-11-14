@@ -1,5 +1,5 @@
 /*
- *     Copyright (c) 2021 Przemysław Buczkowski
+ *     Copyright (c) 2021-24 Przemysław Buczkowski
  *
  *     This file is part of Anime Quiz.
  *
@@ -17,9 +17,27 @@
  *     along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+}
+
+main {
+    display: flex;
+    flex-grow: 1;
+}
+
+
 #count {
     font-size: 2em;
     font-weight: bold;
+}
+
+#player-div {
+    display: flex;
+    flex-direction: column;
 }
 
 #details {
@@ -28,6 +46,15 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+#start_button_div {
+    font-size: 2em;
+    display: none;
+}
+
+#remram_show {
+    display: none;
 }
 
 #details > button {
@@ -59,11 +86,6 @@ a#mode-switch {
     cursor: grab;
 }
 
-main {
-    overflow-y: scroll;
-    height: calc(100vh - 7em);
-}
-
 img#remram {
     width: 70%;
     margin-left: auto;
@@ -79,6 +101,11 @@ input {
 
 input[type=checkbox] {
     vertical-align: sub;
+}
+
+.points {
+    width: 20%;
+    display: block;
 }
 
 /* Row mode */
@@ -103,9 +130,5 @@ input[type=checkbox] {
 
     main > div > div.auto-size {
         width: calc(100% - 600px);
-    }
-
-    .screen-size {
-        height: 70vh;
     }
 }
