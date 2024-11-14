@@ -172,9 +172,7 @@ function initializePlayer() {
 
     start_button.addEventListener('click', play);
     player.addEventListener('canplaythrough', play);
-    player.addEventListener('ended', () => {
-        document.getElementById('settings-form').submit();
-    });
+    player.addEventListener('ended', loadNextSong);
     player.addEventListener('waiting', () => { waiting = true; })
     player.addEventListener('playing', () => { waiting = false; })
 }
