@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.12
 
 # Expose uwsgi socket and HTTP
 EXPOSE 12345 8009

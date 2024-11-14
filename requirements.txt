@@ -1,14 +1,14 @@
 animelyrics==0.1.0
-bugsnag~=4.6.1
-celery~=5.3.6
-Django~=4.2.9
-django-google-cloud-tasks==2.8.2
-django_redis~=5.4.0
+bugsnag~=4.7.1
+celery~=5.4.0
+Django~=5.1.3
+django-google-cloud-tasks~=2.17.0
+django-redis~=5.4.0
 google-cloud-logging
 first==2.0.2
-redis~=5.0.1
-requests~=2.31.0
-uWSGI~=2.0.23
+redis~=5.2.0
+requests~=2.32.3
+uWSGI~=2.0.28
 
 # animethemes-dl~=2.2.0
 git+https://github.com/przemub/animethemes-dl@quiz
