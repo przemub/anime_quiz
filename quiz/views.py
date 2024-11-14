@@ -153,6 +153,9 @@ class UserThemesView(View):
         nsfw = default or request.GET.get("nsfw", "on")
         karaoke = request.GET.get("karaoke", "off") == "on"
 
+        # When refreshing, we need just the player part of the website
+        send_just_player = request.GET.get("player_only", "no") == "yes"
+
         # Something must be enabled
         if not (openings or endings):
             openings, endings = True, False
@@ -263,6 +266,7 @@ class UserThemesView(View):
             "lyrics": mark_safe(lyrics),
             "all_statuses": self.ALL_STATUSES,
             "alert": mark_safe(alert),
+            "send_just_player": send_just_player,
         }
 
         return render(request, "quiz/quiz.html", context)

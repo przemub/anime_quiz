@@ -1,9 +1,28 @@
+{% comment %}
+Copyright (c) 2021-24 Przemysław Buczkowski
+
+This file is part of Anime Quiz.
+
+Anime Quiz is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version.
+
+Anime Quiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
+{% endcomment %}
+
 {% load static %}
+{% if not send_just_player %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <link rel="icon" type="image/x-icon" href="{% static 'quiz/favicon.ico' %}"/>
-
 
     <meta charset="UTF-8">
     <title>Anime Themes Quiz &ndash; quiz.moe</title>
@@ -122,7 +141,7 @@
                  </div>
 
                 <input type="hidden" name="default" value="no">
-                <button class="btn btn-outline-primary w-100 mt-2" type="submit">Play!</button>
+                <button class="btn btn-outline-primary w-100 mt-2" type="button" id="play-btn" onclick="loadNextSong();">Play!</button>
                 </form>
             </div>
             <div class="tab-pane fade" id="lyrics" role="tabpanel" aria-labelledby="lyrics-tab">
@@ -138,20 +157,26 @@
             </div>
         </aside>
 
-        <div class="auto-size order-first order-lg-1 text-center screen-size">
+{% endif %}
+        <div class="auto-size order-lg-1 text-center" id="player-div">
             <video id="player" preload="auto" disablePictureInPicture>
                 <source src="{{ url }}" type="video/webm">
             </video>
 
             <div id="info">
                 <span id="count">Loading…</span>
+                <div id="start_button_div">
+                    {# Show a button for interaction if browser blocked auto-play #}
+                    <button class="btn btn-primary" id="start_button">Start!</button>
+                </div>
                 <div id="details">
                     {{ theme.anime_title }} {{ theme.slug }}<br>{{ theme.song.title }}<br>
                     {{ artists }}<br>
-                    <button class="btn btn-primary" onclick='location.reload()'>Next</button><br>
+                    <button class="btn btn-primary" id="next-btn" onclick='loadNextSong()'>Next</button><br>
                 </div>
             </div>
         </div>
+{% if not send_just_player %}
 
         <aside class="auto-size text-left order-1 order-lg-last ps-4 pe-4" id="results-list">
             <h5>Scoreboard</h5>
@@ -163,12 +188,16 @@
                 <button id="clearPlayerBtn" class="btn btn-outline-danger" type="button" onclick="clearPlayer()">Clear the&nbsp;board</button>
             </div>
 
-            <img class="mt-4" src="{% static 'quiz/rem-ram.gif' %}" alt="Rem/Ram" id="remram">
+            <div class="mt-4" id="remram-div">
+                <img src="{% static 'quiz/rem-ram.gif' %}" alt="Rem/Ram" id="remram">
+                <button type="button" class="btn btn-light" id="remram_show">+</button>
+            </div>
         </aside>
     </div>
+
 </main>
 
-<footer class="footer text-center fixed-bottom">
+<footer class="footer text-center">
     Made with &lt;3 by <a href="https://prem.moe">prem.moe</a>. Hugs to <a href="https://animethemes.moe">animethemes.moe</a> team and <a href="https://github.com/thesadru/animethemes-dl">thesadru</a>.
 </footer>
 
@@ -177,3 +206,4 @@
 <template id="username-template">{% include 'quiz/username.html' with user="" %}</template>
 </body>
 </html>
+{% endif %}

@@ -35,12 +35,56 @@ function removeUser(element) {
     element.parentNode.parentNode.removeChild(element.parentNode);
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    const count = document.getElementById('count');
-    const details = document.getElementById('details');
-    const player = document.getElementById('player');
-    const lyrics_text = document.getElementById('lyrics-text');
-    const lyrics_hidden = document.getElementById('lyrics-hidden');
+function initRemRamImageHiding() {
+    const remram_img = document.getElementById('remram');
+    const remram_show = document.getElementById('remram_show');
+    const storageKey = "remram_hidden";
+    const storageValue = "hidden";
+
+    function hideImage() {
+        remram_img.style.display = "none";
+        remram_show.style.display = "inline-block";
+        sessionStorage.setItem(storageKey, storageValue);
+    }
+    function showImage() {
+        remram_img.style.display = "";
+        remram_show.style.display = "none";
+        sessionStorage.removeItem(storageKey);
+    }
+
+    remram_img.addEventListener("click", hideImage);
+    remram_show.addEventListener("click", showImage);
+
+    if (sessionStorage.getItem(storageKey) === storageValue)
+        hideImage();
+}
+
+async function loadNextSong() {
+    const settings_form = document.getElementById('settings-form');
+    const next_button = document.getElementById('next-btn');
+    const play_button = document.getElementById('play-btn');
+    const player_div = document.getElementById("player-div");
+
+    next_button.disabled = true;
+    next_button.innerHTML = "Loading next song&mldr;"
+    play_button.disabled = true;
+    play_button.innerHTML = "Loading&mldr;"
+
+    const url_params = new URLSearchParams(Array.from(new FormData(settings_form)));
+    url_params.append("player_only", "yes");
+    const url = window.location.href.split('?')[0] + "?" + url_params.toString();
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        // Just reload the page...
+        location.reload();
+    }
+
+    player_div.innerHTML = await response.text();
+    initializePlayer();
+}
+
+function initializePage() {
     const lyrics_tab = document.getElementById('lyrics-tab');
     const settings_tab = document.getElementById('settings-tab');
 
@@ -53,6 +97,32 @@ document.addEventListener("DOMContentLoaded", function() {
     settings_tab.addEventListener("click", () => {
         sessionStorage.setItem("left_tab", "settings");
     });
+
+    let time = parseInt(sessionStorage.getItem("time"));
+    if (isNaN(time)) time = 10;
+
+    const timeRange = document.getElementById('time-range');
+    timeRange.value = time;
+    document.getElementById('time-range-out').innerText = timeRange.value;
+    timeRange.addEventListener('change', function(){
+        document.getElementById('time-range-out').innerText = timeRange.value;
+        sessionStorage['time'] = timeRange.value;
+    });
+
+    initResultsSaving();
+    initRemRamImageHiding();
+    initColorMode();
+    initializePlayer();
+}
+
+function initializePlayer() {
+    const count = document.getElementById('count');
+    const details = document.getElementById('details');
+    const player = document.getElementById('player');
+    const lyrics_text = document.getElementById('lyrics-text');
+    const lyrics_hidden = document.getElementById('lyrics-hidden');
+    const start_button = document.getElementById('start_button');
+    const start_button_div = document.getElementById('start_button_div');
 
     let time = parseInt(sessionStorage.getItem("time"));
     if (isNaN(time)) time = 10;
@@ -80,25 +150,34 @@ document.addEventListener("DOMContentLoaded", function() {
 
         player.play().then(() => {
             count.innerText = time.toString();
+            count.style.display = "";
+            start_button_div.style.display = "none";
             if (time === 0)
                 step();
             else
                 setTimeout(step, 1000);
-        }).catch(() => {
-            count.innerText = "Enable Autoplay (in the address bar) and press Play!";
-       });
+        }).catch((error) => {
+            if (error.name === "NotAllowedError") {
+                start_button_div.style.display = "block";
+                count.style.display = "none";
+            }
+            else {
+                count.innerText = "Failed to load :("
+                console.error(error, error.stack);
+            }
+        });
     }
 
-
+    start_button.addEventListener('click', play);
     player.addEventListener('canplaythrough', play);
     player.addEventListener('ended', () => {
         document.getElementById('settings-form').submit();
     });
     player.addEventListener('waiting', () => { waiting = true; })
     player.addEventListener('playing', () => { waiting = false; })
+}
 
-    initColorMode();
-});
+document.addEventListener("DOMContentLoaded", initializePage);
 
 function addPlayer() {
     const li = document.querySelector(
@@ -128,7 +207,7 @@ function removePoint(element){
     element.parentNode.getElementsByClassName("points")[0].innerText = current;
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+function initResultsSaving() {
     const results = document.getElementById("results-div");
 
     if (sessionStorage.getItem("results") !== null) {
@@ -136,32 +215,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     else {
         results.innerHTML = document.getElementById('results-template').innerHTML;
-        console.log(results.outerHTML)
+        sessionStorage.setItem("results", results.innerHTML);
     }
-    sessionStorage.setItem("results", results.innerHTML);
 
     const observer = new MutationObserver(function (mutationsList, observer) {
         sessionStorage.setItem("results", results.innerHTML);
     });
     observer.observe(results, {attributes: true, childList: true, subtree: true, characterData: true});
 
-    for(let playerField of document.getElementsByClassName('form-control user-field player-field')){
+    // Update field's value for saving
+    for (let playerField of document.getElementsByClassName('form-control user-field player-field')){
         playerField.onchange = function (value){
             playerField.outerHTML = playerField.outerHTML.replace(/value=".*"/, 'value="'+playerField.value+'"');
         };
     }
-
-    let time = parseInt(sessionStorage.getItem("time"));
-    if(isNaN(time)) time = 10;
-
-    const timeRange = document.getElementById('time-range');
-    timeRange.value = time;
-    document.getElementById('time-range-out').innerText = timeRange.value;
-    timeRange.addEventListener('change', function(){
-        document.getElementById('time-range-out').innerText = timeRange.value;
-        sessionStorage['time'] = timeRange.value;
-    });
-});
+}
 
 function initColorMode() {
     let mode = sessionStorage.getItem("color-mode");
