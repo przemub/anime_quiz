@@ -42,7 +42,8 @@ class MyAnimeListTestCase(TestCase):
         with self.assertRaises(TaskStatus):
             UserThemesView._get_user_themes("quiz_moe_testing", [1])
         mock_task.assert_called_once_with(
-            "quiz_moe_testing", [(5114, "Fullmetal Alchemist: Brotherhood")]
+            user="quiz_moe_testing",
+            themes=[(5114, "Fullmetal Alchemist: Brotherhood")]
         )
 
     @mock.patch("quiz.views.GetUserThemesTask.delay")
@@ -54,8 +55,8 @@ class MyAnimeListTestCase(TestCase):
         with self.assertRaises(TaskStatus):
             UserThemesView._get_user_themes("quiz_moe_testing", [2])
         mock_task.assert_called_once_with(
-            "quiz_moe_testing",
-            [
+            user="quiz_moe_testing",
+            themes=[
                 (17074, "Monogatari Series: Second Season"),
                 (9253, "Steins;Gate"),
                 (7785, "Yojouhan Shinwa Taikei"),
@@ -71,8 +72,8 @@ class MyAnimeListTestCase(TestCase):
         with self.assertRaises(TaskStatus):
             UserThemesView._get_user_themes("quiz_moe_testing", [1, 2])
         mock_task.assert_called_once_with(
-            "quiz_moe_testing",
-            [
+            user="quiz_moe_testing",
+            themes=[
                 (5114, "Fullmetal Alchemist: Brotherhood"),
                 (17074, "Monogatari Series: Second Season"),
                 (9253, "Steins;Gate"),
@@ -89,11 +90,11 @@ class AnimeThemesMoeTestCase(TestCase):
     def test_request_anime(self):
         anime = request_anime(9253, "Steins;Gate")
 
-        self.assertEquals(len(anime), 5)  # 5 themes for this anime
+        self.assertEqual(len(anime), 5)  # 5 themes for this anime
         for theme in anime:
-            self.assertEquals(theme["anime_title"], "Steins;Gate")
+            self.assertEqual(theme["anime_title"], "Steins;Gate")
 
-        self.assertEquals(
+        self.assertEqual(
             [theme["song"]["title"] for theme in anime],
             [
                 "Hacking to the Gate",
