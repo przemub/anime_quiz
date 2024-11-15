@@ -31,17 +31,18 @@ main {
 
 
 #count {
-    font-size: 2em;
+    font-size: 2rem;
     font-weight: bold;
 }
 
 #player-div {
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
 }
 
 #details {
-    font-size: 2em;
+    font-size: 2rem;
     visibility: hidden;
     white-space: nowrap;
     overflow: hidden;
@@ -49,16 +50,19 @@ main {
 }
 
 #start_button_div {
-    font-size: 2em;
-    display: none;
+    margin: auto;
+}
+
+#start_button {
+    font-size: 3rem;
 }
 
 #remram_show {
     display: none;
 }
 
-#details > button {
-    font-size: 1em;
+#info button {
+    font-size: 2rem;
 }
 
 #player {
@@ -79,7 +83,7 @@ main {
 }
 
 footer {
-    padding: 1em;
+    padding: 1rem;
 }
 
 a#mode-switch {
@@ -106,6 +110,10 @@ input[type=checkbox] {
 .points {
     width: 20%;
     display: block;
+}
+
+#main-row {
+    width: 100%;
 }
 
 /* Row mode */

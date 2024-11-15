@@ -64,11 +64,14 @@ async function loadNextSong() {
     const next_button = document.getElementById('next-btn');
     const play_button = document.getElementById('play-btn');
     const player_div = document.getElementById("player-div");
+    const start_button = document.getElementById("start_button");
 
     next_button.disabled = true;
     next_button.innerHTML = "Loading next song&mldr;"
     play_button.disabled = true;
     play_button.innerHTML = "Loading&mldr;"
+    start_button.disabled = true;
+    start_button.innerHTML = "Loading next song&mldr;"
 
     const url_params = new URLSearchParams(Array.from(new FormData(settings_form)));
     url_params.append("player_only", "yes");
@@ -121,6 +124,7 @@ function initializePlayer() {
     const count = document.getElementById('count');
     const details = document.getElementById('details');
     const player = document.getElementById('player');
+    const player_div = document.getElementById('player-div');
     const lyrics_text = document.getElementById('lyrics-text');
     const lyrics_hidden = document.getElementById('lyrics-hidden');
     const start_button = document.getElementById('start_button');
@@ -153,7 +157,9 @@ function initializePlayer() {
         player.play().then(() => {
             count.innerText = time.toString();
             count.style.display = "";
+            player_div.style.display = "flex";
             start_button_div.style.display = "none";
+            resizeVideo();
             if (time === 0)
                 step();
             else
@@ -161,10 +167,12 @@ function initializePlayer() {
         }).catch((error) => {
             if (error.name === "NotAllowedError") {
                 start_button_div.style.display = "block";
+                start_button.disabled = false;
+                start_button.innerText = "Click to start!"
                 count.style.display = "none";
             }
             else {
-                count.innerText = "Failed to load :("
+                start_button.innerText = "Failed to load :("
                 console.error(error, error.stack);
             }
         });
@@ -175,9 +183,26 @@ function initializePlayer() {
     player.addEventListener('ended', loadNextSong);
     player.addEventListener('waiting', () => { waiting = true; })
     player.addEventListener('playing', () => { waiting = false; })
+
+    addEventListener('resize', resizeVideo);
 }
 
 document.addEventListener("DOMContentLoaded", initializePage);
+
+function resizeVideo() {
+    // Just kill me.
+    const nav = document.getElementsByTagName("nav")[0];
+    const footer = document.getElementsByTagName("footer")[0];
+    const player = document.getElementById("player");
+    const info = document.getElementById("info");
+
+    player.style.height = (
+        window.innerHeight
+        - nav.offsetHeight
+        - info.offsetHeight
+        - footer.offsetHeight
+    ).toFixed() + "px";
+}
 
 function addPlayer() {
     const li = document.querySelector(
