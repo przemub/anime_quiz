@@ -243,51 +243,19 @@ function initColorMode() {
 }
 
 function _setLightMode() {
-    const body = document.getElementsByTagName("body")[0];
-    const nav = document.getElementsByTagName("nav")[0];
-    const footer = document.getElementsByTagName("footer")[0];
-    const button = document.getElementById("mode-switch");
-
-    body.classList.remove("bg-dark");
-    body.classList.remove("text-light");
-    nav.classList.remove("bg-dark");
-    nav.classList.remove("navbar-dark");
-    nav.classList.add("bg-light");
-    nav.classList.add("navbar-light");
-    footer.classList.add("bg-light");
-
-    for (const li of document.querySelectorAll("li.list-group-item"))
-        li.classList.remove("bg-dark");
-
-    button.innerText = "Dark mode";
-    sessionStorage.setItem("color-mode", "light");
+    document.documentElement.setAttribute('data-bs-theme', 'light');
 }
 
 function _setDarkMode() {
-    const body = document.getElementsByTagName("body")[0];
-    const nav = document.getElementsByTagName("nav")[0];
-    const footer = document.getElementsByTagName("footer")[0];
-    const button = document.getElementById("mode-switch");
-
-    body.classList.add("bg-dark");
-    body.classList.add("text-light");
-    nav.classList.add("bg-dark");
-    nav.classList.add("navbar-dark");
-    footer.classList.remove("bg-light");
-
-    for (const li of document.querySelectorAll("li.list-group-item"))
-        li.classList.add("bg-dark");
-
-    button.innerText = "Light mode";
-    sessionStorage.setItem("color-mode", "dark");
+    document.documentElement.setAttribute('data-bs-theme', 'dark');
 }
 
 function colorModeSwitch() {
-    const body = document.getElementsByTagName("body")[0];
-
-    if (body.className === "bg-dark text-light") {
+    if (document.documentElement.getAttribute('data-bs-theme') === "dark") {
         _setLightMode();
+        sessionStorage.setItem("color-mode", "light");
     } else {
         _setDarkMode();
+        sessionStorage.setItem("color-mode", "dark");
     }
 }
