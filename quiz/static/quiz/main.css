@@ -36,7 +36,7 @@ main {
 }
 
 #player-div {
-    display: flex;
+    display: none;
     flex-direction: column;
     flex-grow: 1;
 }
