@@ -116,6 +116,11 @@ input[type=checkbox] {
     width: 100%;
 }
 
+.alert {
+    // Add space for top nav.
+    top: 3em;
+}
+
 /* Row mode */
 @media (max-width: 991px) {
     aside {

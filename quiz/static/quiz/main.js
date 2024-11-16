@@ -83,9 +83,25 @@ async function loadNextSong() {
         location.reload();
     }
 
+    // Paste the player div in
     player_div.innerHTML = await response.text();
     play_button.disabled = false;
     play_button.innerText = "Play!"
+
+    // If exists, move the alert where it should be...
+    let nav = document.getElementsByTagName("nav")[0];
+    let newAlert = player_div.querySelector(".alert");
+    let oldAlert = nav.querySelector(".alert");
+    if (newAlert !== null) {
+        if (oldAlert !== null)
+            oldAlert.replaceWith(newAlert);
+        else
+            nav.appendChild(newAlert);
+    }
+    // ...or remove the old one
+    else if (oldAlert !== null)
+        oldAlert.remove();
+
     initializePlayer();
 }
 
