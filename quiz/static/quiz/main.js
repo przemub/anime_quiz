@@ -284,11 +284,17 @@ function initColorMode() {
 }
 
 function _setLightMode() {
+    const modeSwitchButton = document.getElementById("mode-switch");
     document.documentElement.setAttribute('data-bs-theme', 'light');
+
+    modeSwitchButton.innerText = "Dark mode";
 }
 
 function _setDarkMode() {
+    const modeSwitchButton = document.getElementById("mode-switch");
     document.documentElement.setAttribute('data-bs-theme', 'dark');
+
+    modeSwitchButton.innerText = "Light mode";
 }
 
 function colorModeSwitch() {
