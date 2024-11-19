@@ -23,11 +23,17 @@ Object.defineProperty(HTMLMediaElement.prototype, 'playing', {
     }
 })
 
-function addUser() {
+function addUser(username) {
     const template = document.getElementById("username-template");
 
-    document.getElementById("addUserBtn").insertAdjacentHTML(
-        "beforebegin", template.innerHTML
+    const new_user = template.content.querySelector("div.input-group").cloneNode(true);
+    if (username !== undefined) {
+        const input = new_user.querySelector("input");
+        input.value = username;
+    }
+
+    document.getElementById("addUserBtn").insertAdjacentElement(
+        "beforebegin", new_user
     );
 }
 
@@ -44,23 +50,27 @@ function initRemRamImageHiding() {
     function hideImage() {
         remram_img.style.display = "none";
         remram_show.style.display = "inline-block";
-        sessionStorage.setItem(storageKey, storageValue);
+        localStorage.setItem(storageKey, storageValue);
     }
     function showImage() {
         remram_img.style.display = "";
         remram_show.style.display = "none";
-        sessionStorage.removeItem(storageKey);
+        localStorage.removeItem(storageKey);
     }
 
     remram_img.addEventListener("click", hideImage);
     remram_show.addEventListener("click", showImage);
 
-    if (sessionStorage.getItem(storageKey) === storageValue)
+    if (localStorage.getItem(storageKey) === storageValue)
         hideImage();
 }
 
 async function loadNextSong() {
     const settings_form = document.getElementById('settings-form');
+    if (settings_form.reportValidity() === false)
+        return;
+    saveSettings();
+
     const next_button = document.getElementById('next-btn');
     const play_button = document.getElementById('play-btn');
     const player_div = document.getElementById("player-div");
@@ -105,21 +115,64 @@ async function loadNextSong() {
     initializePlayer();
 }
 
+function initSettings() {
+    // Load settings
+    // Return false if default settings are to be used
+    if (localStorage.getItem("settings_saved") !== "true") {
+        addUser("przemub");
+        return false;
+    }
+
+    const checkboxes = document.querySelectorAll("form#settings-form input[type=checkbox]");
+    for (const checkbox of checkboxes) {
+        let saved_value = localStorage.getItem(checkbox.id);
+        if (saved_value === "true")
+            checkbox.checked = true;
+        else if (saved_value === "false")
+            checkbox.checked = false;
+    }
+
+    const saved_users = localStorage.getItem("users");
+    if (saved_users === null)
+        addUser("przemub");
+    else
+        for (const user of saved_users.split(","))
+            addUser(user);
+
+    return true;
+}
+
+function saveSettings() {
+    const checkboxes = document.querySelectorAll(
+        "form#settings-form input[type=checkbox]"
+    );
+    for (const checkbox of checkboxes)
+        localStorage.setItem(checkbox.id, checkbox.checked.toString());
+
+    const user_inputs = document.querySelectorAll(
+        "form#settings-form input[name=user]"
+    );
+    const users = [...user_inputs].map((input) => {return input.value}).join(",");
+    localStorage.setItem("users", users);
+
+    localStorage.setItem("settings_saved", "true");
+}
+
 function initializePage() {
     const lyrics_tab = document.getElementById('lyrics-tab');
     const settings_tab = document.getElementById('settings-tab');
 
     // Set up tab persistence
-    if (sessionStorage.getItem("left_tab") === "lyrics")
+    if (localStorage.getItem("left_tab") === "lyrics")
         lyrics_tab.click();
     lyrics_tab.addEventListener("click", () => {
-        sessionStorage.setItem("left_tab", "lyrics");
+        localStorage.setItem("left_tab", "lyrics");
     });
     settings_tab.addEventListener("click", () => {
-        sessionStorage.setItem("left_tab", "settings");
+        localStorage.setItem("left_tab", "settings");
     });
 
-    let time = parseInt(sessionStorage.getItem("time"));
+    let time = parseInt(localStorage.getItem("time"));
     if (isNaN(time)) time = 10;
 
     const timeRange = document.getElementById('time-range');
@@ -127,13 +180,18 @@ function initializePage() {
     document.getElementById('time-range-out').innerText = timeRange.value;
     timeRange.addEventListener('change', function(){
         document.getElementById('time-range-out').innerText = timeRange.value;
-        sessionStorage['time'] = timeRange.value;
+        localStorage['time'] = timeRange.value;
     });
 
     initResultsSaving();
     initRemRamImageHiding();
     initColorMode();
-    initializePlayer();
+    if (initSettings() === true) {
+        // If non-default settings are used, we need to
+        // request a new player from the server.
+        loadNextSong().then();
+    } else
+        initializePlayer();
 }
 
 function initializePlayer() {
@@ -146,7 +204,7 @@ function initializePlayer() {
     const start_button = document.getElementById('start_button');
     const start_button_div = document.getElementById('start_button_div');
 
-    let time = parseInt(sessionStorage.getItem("time"));
+    let time = parseInt(localStorage.getItem("time"));
     if (isNaN(time)) time = 10;
 
     let waiting = false; // True when waiting for data.
@@ -163,6 +221,8 @@ function initializePlayer() {
             }
             else {
                 player.style.visibility = 'visible';
+
+                localStorage.setItem("settings_saved", "true");
                 details.style.visibility = 'visible';
                 lyrics_text.style.display = '';
                 lyrics_hidden.style.display = 'none';
@@ -232,7 +292,7 @@ function removePlayer(element){
 }
 
 function clearPlayer(){
-    sessionStorage.removeItem('results');
+    localStorage.removeItem('results');
     document.getElementById("results-div").innerHTML = document.getElementById('results-template').innerHTML;
 }
 
@@ -251,16 +311,16 @@ function removePoint(element){
 function initResultsSaving() {
     const results = document.getElementById("results-div");
 
-    if (sessionStorage.getItem("results") !== null) {
-        results.innerHTML = sessionStorage.getItem("results");
+    if (localStorage.getItem("results") !== null) {
+        results.innerHTML = localStorage.getItem("results");
     }
     else {
         results.innerHTML = document.getElementById('results-template').innerHTML;
-        sessionStorage.setItem("results", results.innerHTML);
+        localStorage.setItem("results", results.innerHTML);
     }
 
     const observer = new MutationObserver(function (mutationsList, observer) {
-        sessionStorage.setItem("results", results.innerHTML);
+        localStorage.setItem("results", results.innerHTML);
     });
     observer.observe(results, {attributes: true, childList: true, subtree: true, characterData: true});
 
@@ -273,7 +333,7 @@ function initResultsSaving() {
 }
 
 function initColorMode() {
-    let mode = sessionStorage.getItem("color-mode");
+    let mode = localStorage.getItem("color-mode");
     if (mode === null) {
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
             mode = "dark";
@@ -300,9 +360,9 @@ function _setDarkMode() {
 function colorModeSwitch() {
     if (document.documentElement.getAttribute('data-bs-theme') === "dark") {
         _setLightMode();
-        sessionStorage.setItem("color-mode", "light");
+        localStorage.setItem("color-mode", "light");
     } else {
         _setDarkMode();
-        sessionStorage.setItem("color-mode", "dark");
+        localStorage.setItem("color-mode", "dark");
     }
 }

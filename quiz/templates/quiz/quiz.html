@@ -141,10 +141,7 @@ along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 
                  <div class="form-group">
                    <label for="user" class="form-label">MAL usernames:</label>
-                     {% for user in users %}
-                         {% include 'quiz/username.html' with user=user %}
-                     {% endfor %}
-                    <button id="addUserBtn" class="btn btn-outline-success w-100 mt-1" type="button" onclick="addUser()">Add a MAL user</button>
+                     <button id="addUserBtn" class="btn btn-outline-success w-100 mt-1" type="button" onclick="addUser()">Add a MAL user</button>
                  </div>
 
                 <input type="hidden" name="default" value="no">
