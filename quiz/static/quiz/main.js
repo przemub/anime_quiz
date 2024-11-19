@@ -16,353 +16,332 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
  */
+/* global localStorage, MutationObserver, addEventListener, HTMLMediaElement, location */
 
 Object.defineProperty(HTMLMediaElement.prototype, 'playing', {
-    get: function(){
-        return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
-    }
+  get: function () {
+    return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2)
+  }
 })
 
-function addUser(username) {
-    const template = document.getElementById("username-template");
+function addUser (username) {
+  const template = document.getElementById('username-template')
 
-    const new_user = template.content.querySelector("div.input-group").cloneNode(true);
-    if (username !== undefined) {
-        const input = new_user.querySelector("input");
-        input.value = username;
-    }
+  const newUser = template.content.querySelector('div.input-group').cloneNode(true)
+  if (username !== undefined) {
+    const input = newUser.querySelector('input')
+    input.value = username
+  }
 
-    document.getElementById("addUserBtn").insertAdjacentElement(
-        "beforebegin", new_user
-    );
+  document.getElementById('addUserBtn').insertAdjacentElement(
+    'beforebegin', newUser
+  )
 }
 
-function removeUser(element) {
-    element.parentNode.parentNode.removeChild(element.parentNode);
+function removeUser (element) {
+  element.parentNode.parentNode.removeChild(element.parentNode)
 }
 
-function initRemRamImageHiding() {
-    const remram_img = document.getElementById('remram');
-    const remram_show = document.getElementById('remram_show');
-    const storageKey = "remram_hidden";
-    const storageValue = "hidden";
+function initRemRamImageHiding () {
+  const remramImg = document.getElementById('remram')
+  const remramShow = document.getElementById('remram_show')
+  const storageKey = 'remram_hidden'
+  const storageValue = 'hidden'
 
-    function hideImage() {
-        remram_img.style.display = "none";
-        remram_show.style.display = "inline-block";
-        localStorage.setItem(storageKey, storageValue);
-    }
-    function showImage() {
-        remram_img.style.display = "";
-        remram_show.style.display = "none";
-        localStorage.removeItem(storageKey);
-    }
+  function hideImage () {
+    remramImg.style.display = 'none'
+    remramShow.style.display = 'inline-block'
+    localStorage.setItem(storageKey, storageValue)
+  }
+  function showImage () {
+    remramImg.style.display = ''
+    remramShow.style.display = 'none'
+    localStorage.removeItem(storageKey)
+  }
 
-    remram_img.addEventListener("click", hideImage);
-    remram_show.addEventListener("click", showImage);
+  remramImg.addEventListener('click', hideImage)
+  remramShow.addEventListener('click', showImage)
 
-    if (localStorage.getItem(storageKey) === storageValue)
-        hideImage();
+  if (localStorage.getItem(storageKey) === storageValue) { hideImage() }
 }
 
-async function loadNextSong() {
-    const settings_form = document.getElementById('settings-form');
-    if (settings_form.reportValidity() === false)
-        return;
-    saveSettings();
+async function loadNextSong () {
+  const settingsForm = document.getElementById('settings-form')
+  if (settingsForm.reportValidity() === false) { return }
+  saveSettings()
 
-    const next_button = document.getElementById('next-btn');
-    const play_button = document.getElementById('play-btn');
-    const player_div = document.getElementById("player-div");
-    const start_button = document.getElementById("start_button");
+  const nextButton = document.getElementById('next-btn')
+  const playButton = document.getElementById('play-btn')
+  const playerDiv = document.getElementById('player-div')
+  const startButton = document.getElementById('start_button')
 
-    next_button.disabled = true;
-    next_button.innerHTML = "Loading next song&mldr;"
-    play_button.disabled = true;
-    play_button.innerHTML = "Loading&mldr;"
-    start_button.disabled = true;
-    start_button.innerHTML = "Loading next song&mldr;"
+  nextButton.disabled = true
+  nextButton.innerHTML = 'Loading next song&mldr;'
+  playButton.disabled = true
+  playButton.innerHTML = 'Loading&mldr;'
+  startButton.disabled = true
+  startButton.innerHTML = 'Loading next song&mldr;'
 
-    const url_params = new URLSearchParams(Array.from(new FormData(settings_form)));
-    url_params.append("player_only", "yes");
-    const url = window.location.href.split('?')[0] + "?" + url_params.toString();
-    const response = await fetch(url);
+  const urlParams = new URLSearchParams(Array.from(new FormData(settingsForm)))
+  urlParams.append('player_only', 'yes')
+  const url = window.location.href.split('?')[0] + '?' + urlParams.toString()
+  const response = await fetch(url)
 
-    if (!response.ok) {
-        // Just reload the page...
-        location.reload();
-    }
+  if (!response.ok) {
+    // Just reload the page...
+    location.reload()
+  }
 
-    // Paste the player div in
-    player_div.innerHTML = await response.text();
-    play_button.disabled = false;
-    play_button.innerText = "Play!"
+  // Paste the player div in
+  playerDiv.innerHTML = await response.text()
+  playButton.disabled = false
+  playButton.innerText = 'Play!'
 
-    // If exists, move the alert where it should be...
-    let nav = document.getElementsByTagName("nav")[0];
-    let newAlert = player_div.querySelector(".alert");
-    let oldAlert = nav.querySelector(".alert");
-    if (newAlert !== null) {
-        if (oldAlert !== null)
-            oldAlert.replaceWith(newAlert);
-        else
-            nav.appendChild(newAlert);
-    }
-    // ...or remove the old one
-    else if (oldAlert !== null)
-        oldAlert.remove();
-
-    initializePlayer();
-}
-
-function initSettings() {
-    // Load settings
-    // Return false if default settings are to be used
-    if (localStorage.getItem("settings_saved") !== "true") {
-        addUser("przemub");
-        return false;
-    }
-
-    const checkboxes = document.querySelectorAll("form#settings-form input[type=checkbox]");
-    for (const checkbox of checkboxes) {
-        let saved_value = localStorage.getItem(checkbox.id);
-        if (saved_value === "true")
-            checkbox.checked = true;
-        else if (saved_value === "false")
-            checkbox.checked = false;
-    }
-
-    const saved_users = localStorage.getItem("users");
-    if (saved_users === null)
-        addUser("przemub");
-    else
-        for (const user of saved_users.split(","))
-            addUser(user);
-
-    return true;
-}
-
-function saveSettings() {
-    const checkboxes = document.querySelectorAll(
-        "form#settings-form input[type=checkbox]"
-    );
-    for (const checkbox of checkboxes)
-        localStorage.setItem(checkbox.id, checkbox.checked.toString());
-
-    const user_inputs = document.querySelectorAll(
-        "form#settings-form input[name=user]"
-    );
-    const users = [...user_inputs].map((input) => {return input.value}).join(",");
-    localStorage.setItem("users", users);
-
-    localStorage.setItem("settings_saved", "true");
-}
-
-function initializePage() {
-    const lyrics_tab = document.getElementById('lyrics-tab');
-    const settings_tab = document.getElementById('settings-tab');
-
-    // Set up tab persistence
-    if (localStorage.getItem("left_tab") === "lyrics")
-        lyrics_tab.click();
-    lyrics_tab.addEventListener("click", () => {
-        localStorage.setItem("left_tab", "lyrics");
-    });
-    settings_tab.addEventListener("click", () => {
-        localStorage.setItem("left_tab", "settings");
-    });
-
-    let time = parseInt(localStorage.getItem("time"));
-    if (isNaN(time)) time = 10;
-
-    const timeRange = document.getElementById('time-range');
-    timeRange.value = time;
-    document.getElementById('time-range-out').innerText = timeRange.value;
-    timeRange.addEventListener('change', function(){
-        document.getElementById('time-range-out').innerText = timeRange.value;
-        localStorage['time'] = timeRange.value;
-    });
-
-    initResultsSaving();
-    initRemRamImageHiding();
-    initColorMode();
-    if (initSettings() === true) {
-        // If non-default settings are used, we need to
-        // request a new player from the server.
-        loadNextSong().then();
-    } else
-        initializePlayer();
-}
-
-function initializePlayer() {
-    const count = document.getElementById('count');
-    const details = document.getElementById('details');
-    const player = document.getElementById('player');
-    const player_div = document.getElementById('player-div');
-    const lyrics_text = document.getElementById('lyrics-text');
-    const lyrics_hidden = document.getElementById('lyrics-hidden');
-    const start_button = document.getElementById('start_button');
-    const start_button_div = document.getElementById('start_button_div');
-
-    let time = parseInt(localStorage.getItem("time"));
-    if (isNaN(time)) time = 10;
-
-    let waiting = false; // True when waiting for data.
-
-    function play() {
-        player.removeEventListener('canplaythrough', play);
-
-        function step() {
-            if (time > 1) {
-                if (player.playing)
-                    time--;
-                count.innerText = time.toString();
-                setTimeout(step, 1000);
-            }
-            else {
-                player.style.visibility = 'visible';
-
-                localStorage.setItem("settings_saved", "true");
-                details.style.visibility = 'visible';
-                lyrics_text.style.display = '';
-                lyrics_hidden.style.display = 'none';
-                count.innerHTML = "";
-            }
-        }
-
-        player.play().then(() => {
-            count.innerText = time.toString();
-            count.style.display = "";
-            player_div.style.display = "flex";
-            start_button_div.style.display = "none";
-            resizeVideo();
-            if (time === 0)
-                step();
-            else
-                setTimeout(step, 1000);
-        }).catch((error) => {
-            if (error.name === "NotAllowedError") {
-                start_button_div.style.display = "block";
-                start_button.disabled = false;
-                start_button.innerText = "Click to start!"
-                count.style.display = "none";
-            }
-            else {
-                start_button.innerText = "Failed to load :("
-                console.error(error, error.stack);
-            }
-        });
-    }
-
-    start_button.addEventListener('click', play);
-    player.addEventListener('canplaythrough', play);
-    player.addEventListener('ended', loadNextSong);
-    player.addEventListener('waiting', () => { waiting = true; })
-    player.addEventListener('playing', () => { waiting = false; })
-
-    addEventListener('resize', resizeVideo);
-}
-
-document.addEventListener("DOMContentLoaded", initializePage);
-
-function resizeVideo() {
-    // Just kill me.
-    const nav = document.getElementsByTagName("nav")[0];
-    const footer = document.getElementsByTagName("footer")[0];
-    const player = document.getElementById("player");
-    const info = document.getElementById("info");
-
-    player.style.height = (
-        window.innerHeight
-        - nav.offsetHeight
-        - info.offsetHeight
-        - footer.offsetHeight
-    ).toFixed() + "px";
-}
-
-function addPlayer() {
-    const li = document.querySelector(
-        "template#results-template"
-    ).content.children[0].firstElementChild.cloneNode(true);
-    document.getElementById("results").appendChild(li);
-}
-
-function removePlayer(element){
-    element.parentNode.parentNode.parentNode.removeChild(element.parentNode.parentNode)
-}
-
-function clearPlayer(){
-    localStorage.removeItem('results');
-    document.getElementById("results-div").innerHTML = document.getElementById('results-template').innerHTML;
-}
-
-function addPoint(element){
-    let current = element.parentNode.getElementsByClassName("points")[0].innerText;
-    current = parseInt(current) + 1;
-    element.parentNode.getElementsByClassName("points")[0].innerText = current;
-}
-
-function removePoint(element){
-    let current = element.parentNode.getElementsByClassName("points")[0].innerText;
-    current = Math.max(parseInt(current) - 1, 0);
-    element.parentNode.getElementsByClassName("points")[0].innerText = current;
-}
-
-function initResultsSaving() {
-    const results = document.getElementById("results-div");
-
-    if (localStorage.getItem("results") !== null) {
-        results.innerHTML = localStorage.getItem("results");
-    }
-    else {
-        results.innerHTML = document.getElementById('results-template').innerHTML;
-        localStorage.setItem("results", results.innerHTML);
-    }
-
-    const observer = new MutationObserver(function (mutationsList, observer) {
-        localStorage.setItem("results", results.innerHTML);
-    });
-    observer.observe(results, {attributes: true, childList: true, subtree: true, characterData: true});
-
-    // Update field's value for saving
-    for (let playerField of document.getElementsByClassName('form-control user-field player-field')){
-        playerField.onchange = function (value){
-            playerField.outerHTML = playerField.outerHTML.replace(/value=".*"/, 'value="'+playerField.value+'"');
-        };
-    }
-}
-
-function initColorMode() {
-    let mode = localStorage.getItem("color-mode");
-    if (mode === null) {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-            mode = "dark";
-    }
-
-    if (mode === "dark")
-        _setDarkMode();
-}
-
-function _setLightMode() {
-    const modeSwitchButton = document.getElementById("mode-switch");
-    document.documentElement.setAttribute('data-bs-theme', 'light');
-
-    modeSwitchButton.innerText = "Dark mode";
-}
-
-function _setDarkMode() {
-    const modeSwitchButton = document.getElementById("mode-switch");
-    document.documentElement.setAttribute('data-bs-theme', 'dark');
-
-    modeSwitchButton.innerText = "Light mode";
-}
-
-function colorModeSwitch() {
-    if (document.documentElement.getAttribute('data-bs-theme') === "dark") {
-        _setLightMode();
-        localStorage.setItem("color-mode", "light");
+  // If exists, move the alert where it should be...
+  const nav = document.getElementsByTagName('nav')[0]
+  const newAlert = playerDiv.querySelector('.alert')
+  const oldAlert = nav.querySelector('.alert')
+  if (newAlert !== null) {
+    if (oldAlert !== null) {
+      oldAlert.replaceWith(newAlert)
     } else {
-        _setDarkMode();
-        localStorage.setItem("color-mode", "dark");
+      nav.appendChild(newAlert)
     }
+  } else if (oldAlert !== null) {
+    // ...or remove the old one
+    oldAlert.remove()
+  }
+
+  initializePlayer()
+}
+
+function initSettings () {
+  // Load settings
+  // Return false if default settings are to be used
+  if (localStorage.getItem('settings_saved') !== 'true') {
+    addUser('przemub')
+    return false
+  }
+
+  const checkboxes = document.querySelectorAll('form#settings-form input[type=checkbox]')
+  for (const checkbox of checkboxes) {
+    const savedValue = localStorage.getItem(checkbox.id)
+    if (savedValue === 'true') { checkbox.checked = true } else if (savedValue === 'false') { checkbox.checked = false }
+  }
+
+  const savedUsers = localStorage.getItem('users')
+  if (savedUsers === null) { addUser('przemub') } else {
+    for (const user of savedUsers.split(',')) { addUser(user) }
+  }
+
+  return true
+}
+
+function saveSettings () {
+  const checkboxes = document.querySelectorAll(
+    'form#settings-form input[type=checkbox]'
+  )
+  for (const checkbox of checkboxes) { localStorage.setItem(checkbox.id, checkbox.checked.toString()) }
+
+  const userInputs = document.querySelectorAll(
+    'form#settings-form input[name=user]'
+  )
+  const users = [...userInputs].map((input) => { return input.value }).join(',')
+  localStorage.setItem('users', users)
+
+  localStorage.setItem('settings_saved', 'true')
+}
+
+function initializePage () {
+  const lyricsTab = document.getElementById('lyrics-tab')
+  const settingsTab = document.getElementById('settings-tab')
+
+  // Set up tab persistence
+  if (localStorage.getItem('left_tab') === 'lyrics') { lyricsTab.click() }
+  lyricsTab.addEventListener('click', () => {
+    localStorage.setItem('left_tab', 'lyrics')
+  })
+  settingsTab.addEventListener('click', () => {
+    localStorage.setItem('left_tab', 'settings')
+  })
+
+  let time = parseInt(localStorage.getItem('time'))
+  if (isNaN(time)) time = 10
+
+  const timeRange = document.getElementById('time-range')
+  timeRange.value = time
+  document.getElementById('time-range-out').innerText = timeRange.value
+  timeRange.addEventListener('change', function () {
+    document.getElementById('time-range-out').innerText = timeRange.value
+    localStorage.time = timeRange.value
+  })
+
+  initResultsSaving()
+  initRemRamImageHiding()
+  initColorMode()
+  if (initSettings() === true) {
+    // If non-default settings are used, we need to
+    // request a new player from the server.
+    loadNextSong().then()
+  } else { initializePlayer() }
+}
+
+function initializePlayer () {
+  const count = document.getElementById('count')
+  const details = document.getElementById('details')
+  const player = document.getElementById('player')
+  const playerDiv = document.getElementById('player-div')
+  const lyricsText = document.getElementById('lyrics-text')
+  const lyricsHidden = document.getElementById('lyrics-hidden')
+  const startButton = document.getElementById('start_button')
+  const startButtonDiv = document.getElementById('start_button_div')
+
+  let time = parseInt(localStorage.getItem('time'))
+  if (isNaN(time)) time = 10
+
+  function play () {
+    player.removeEventListener('canplaythrough', play)
+
+    function step () {
+      if (time > 1) {
+        if (player.playing) { time-- }
+        count.innerText = time.toString()
+        setTimeout(step, 1000)
+      } else {
+        player.style.visibility = 'visible'
+
+        localStorage.setItem('settings_saved', 'true')
+        details.style.visibility = 'visible'
+        lyricsText.style.display = ''
+        lyricsHidden.style.display = 'none'
+        count.innerHTML = ''
+      }
+    }
+
+    player.play().then(() => {
+      count.innerText = time.toString()
+      count.style.display = ''
+      playerDiv.style.display = 'flex'
+      startButtonDiv.style.display = 'none'
+      resizeVideo()
+      if (time === 0) { step() } else { setTimeout(step, 1000) }
+    }).catch((error) => {
+      if (error.name === 'NotAllowedError') {
+        startButtonDiv.style.display = 'block'
+        startButton.disabled = false
+        startButton.innerText = 'Click to start!'
+        count.style.display = 'none'
+      } else {
+        startButton.innerText = 'Failed to load :('
+        console.error(error, error.stack)
+      }
+    })
+  }
+
+  startButton.addEventListener('click', play)
+  player.addEventListener('canplaythrough', play)
+  player.addEventListener('ended', loadNextSong)
+
+  addEventListener('resize', resizeVideo)
+}
+
+document.addEventListener('DOMContentLoaded', initializePage)
+
+function resizeVideo () {
+  // Just kill me.
+  const nav = document.getElementsByTagName('nav')[0]
+  const footer = document.getElementsByTagName('footer')[0]
+  const player = document.getElementById('player')
+  const info = document.getElementById('info')
+
+  player.style.height = (
+    window.innerHeight -
+        nav.offsetHeight -
+        info.offsetHeight -
+        footer.offsetHeight
+  ).toFixed() + 'px'
+}
+
+function addPlayer () {
+  const li = document.querySelector(
+    'template#results-template'
+  ).content.children[0].firstElementChild.cloneNode(true)
+  document.getElementById('results').appendChild(li)
+}
+
+function removePlayer (element) {
+  element.parentNode.parentNode.parentNode.removeChild(element.parentNode.parentNode)
+}
+
+function clearPlayer () {
+  localStorage.removeItem('results')
+  document.getElementById('results-div').innerHTML = document.getElementById('results-template').innerHTML
+}
+
+function addPoint (element) {
+  let current = element.parentNode.getElementsByClassName('points')[0].innerText
+  current = parseInt(current) + 1
+  element.parentNode.getElementsByClassName('points')[0].innerText = current
+}
+
+function removePoint (element) {
+  let current = element.parentNode.getElementsByClassName('points')[0].innerText
+  current = Math.max(parseInt(current) - 1, 0)
+  element.parentNode.getElementsByClassName('points')[0].innerText = current
+}
+
+function initResultsSaving () {
+  const results = document.getElementById('results-div')
+
+  if (localStorage.getItem('results') !== null) {
+    results.innerHTML = localStorage.getItem('results')
+  } else {
+    results.innerHTML = document.getElementById('results-template').innerHTML
+    localStorage.setItem('results', results.innerHTML)
+  }
+
+  const observer = new MutationObserver(function (mutationsList, observer) {
+    localStorage.setItem('results', results.innerHTML)
+  })
+  observer.observe(results, { attributes: true, childList: true, subtree: true, characterData: true })
+
+  // Update field's value for saving
+  for (const playerField of document.getElementsByClassName('form-control user-field player-field')) {
+    playerField.onchange = function (value) {
+      playerField.outerHTML = playerField.outerHTML.replace(/value=".*"/, 'value="' + playerField.value + '"')
+    }
+  }
+}
+
+function initColorMode () {
+  let mode = localStorage.getItem('color-mode')
+  if (mode === null) {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { mode = 'dark' }
+  }
+
+  if (mode === 'dark') { _setDarkMode() }
+}
+
+function _setLightMode () {
+  const modeSwitchButton = document.getElementById('mode-switch')
+  document.documentElement.setAttribute('data-bs-theme', 'light')
+
+  modeSwitchButton.innerText = 'Dark mode'
+}
+
+function _setDarkMode () {
+  const modeSwitchButton = document.getElementById('mode-switch')
+  document.documentElement.setAttribute('data-bs-theme', 'dark')
+
+  modeSwitchButton.innerText = 'Light mode'
+}
+
+function colorModeSwitch () {
+  if (document.documentElement.getAttribute('data-bs-theme') === 'dark') {
+    _setLightMode()
+    localStorage.setItem('color-mode', 'light')
+  } else {
+    _setDarkMode()
+    localStorage.setItem('color-mode', 'dark')
+  }
 }
