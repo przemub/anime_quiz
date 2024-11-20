@@ -66,7 +66,10 @@ class GetUserThemesTaskBase(TaskBase):
                 anime_key = f"themes-{anime_id}"
 
                 # Check if the anime has not been fetched in the meantime
-                if cache.get(anime_key, None) is not None:
+                if (
+                    cache.get(anime_key, None) is not None
+                    and cache.ttl(anime_key) >= settings.NEAR_CACHE_MISS_SECS
+                ):
                     continue
 
                 try:
@@ -145,11 +148,14 @@ class GetLyricsTaskBase(TaskBase):
 if settings.TASK_BACKEND == "celery":
     from anime_quiz.celery import app
 
+
     class GetLyricsTask(GetLyricsTaskBase, app.Task):
         pass
 
+
     class GetUserThemesTask(GetUserThemesTaskBase, app.Task):
         pass
+
 
     app.register_task(GetLyricsTask())
     app.register_task(GetUserThemesTask())

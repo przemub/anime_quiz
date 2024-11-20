@@ -18,6 +18,7 @@ import random as random_module
 
 from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS, MyanimelistException
 from animethemes_dl.parsers.myanimelist import get_raw_mal, filter_mal
+from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -64,6 +65,7 @@ class UserThemesView(View):
         ANIMETHEMES_OPTIONS["statuses"] = statuses
         mal_data = filter_mal(mal_data)
 
+        cache_near_misses = []
         cache_misses = []
         cache_hits = []
 
@@ -74,6 +76,14 @@ class UserThemesView(View):
                 cache_misses.append((mal_id, title))
             else:
                 cache_hits.extend(anime_data)
+                if cache.ttl(anime_key) < settings.NEAR_CACHE_MISS_SECS:
+                    cache_near_misses.append((mal_id, title))
+
+        if cache_near_misses:
+            GetUserThemesTask().delay(
+                user=user + "/near_misses",
+                themes=cache_near_misses
+            )
 
         started_key = f"started_user_{user}"
         if not cache_misses:
