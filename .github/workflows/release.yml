@@ -22,6 +22,7 @@ jobs:
       - name: Run test suite
         run: docker compose -f docker-compose.yml -f docker-compose.dev.yml exec -T anime_quiz python manage.py test
   release:
+    name: Push to Docker Hub
     runs-on: ubuntu-latest
     needs: test
     steps:
@@ -44,4 +45,23 @@ jobs:
         platforms: linux/amd64,linux/arm64
         push: true
         tags: przemub/anime_quiz:latest,przemub/anime_quiz:${{ steps.short_id.outputs.sha_short }}
-
+  deploy:
+    name: Deploy on the official instance
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - name: Connect via SSH
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        username: ${{ secrets.USER }}
+        host: ${{ secrets.HOST }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          cd przemub2/anime_quiz
+          git pull
+          docker compose pull
+          docker compose build --pull
+          docker compose run --rm -v "$(pwd)/static:/app/static" --user $(id -u):$(id -g) anime_quiz python manage.py collectstatic --no-input
+          docker compose up -d
+          docker system prune -f
