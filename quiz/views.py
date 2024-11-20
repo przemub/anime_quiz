@@ -150,7 +150,7 @@ class UserThemesView(View):
         openings = default or request.GET.get("t-op", "off") == "on"
         endings = request.GET.get("t-ed", "off") == "on"
         spoilers = request.GET.get("sp", "off") == "on"
-        nsfw = default or request.GET.get("nsfw", "on")
+        nsfw = default or request.GET.get("nsfw", "on") == "on"
         karaoke = request.GET.get("karaoke", "off") == "on"
 
         # When refreshing, we need just the player part of the website
