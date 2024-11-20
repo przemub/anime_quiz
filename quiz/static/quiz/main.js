@@ -88,8 +88,8 @@ async function loadNextSong () {
   const response = await fetch(url)
 
   if (!response.ok) {
-    // Just reload the page...
-    location.reload()
+    // Just submit the form to reload the page and see the full error
+    settingsForm.submit()
   }
 
   // Paste the player div in
