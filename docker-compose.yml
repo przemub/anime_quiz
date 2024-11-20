@@ -28,8 +28,13 @@ services:
     env_file:
       - .env
   redis:
-    image: redis:6.2
-    command: ["redis-server", "--appendonly", "yes"]
+    image: valkey/valkey:8.0
+    command:
+      - "valkey-server"
+      - "--appendonly"
+      - "yes"
+      - "--appendfsync"
+      - "everysec"
     volumes:
       - redis_data:/data
     networks:
@@ -43,4 +48,3 @@ networks:
 
 volumes:
   redis_data:
-
