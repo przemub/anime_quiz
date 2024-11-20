@@ -76,11 +76,11 @@ async function loadNextSong () {
   const startButton = document.getElementById('start_button')
 
   nextButton.disabled = true
-  nextButton.innerHTML = 'Loading next song&mldr;'
+  nextButton.innerHTML = 'Loading&mldr;'
   playButton.disabled = true
   playButton.innerHTML = 'Loading&mldr;'
   startButton.disabled = true
-  startButton.innerHTML = 'Loading next song&mldr;'
+  startButton.innerHTML = 'Loading&mldr;'
 
   const urlParams = new URLSearchParams(Array.from(new FormData(settingsForm)))
   urlParams.append('player_only', 'yes')
