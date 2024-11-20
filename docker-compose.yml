@@ -8,7 +8,8 @@ services:
     ports:
       - 8009:8009
     depends_on:
-      - celery_worker
+      celery_worker:
+        condition: service_healthy
     volumes:
       - ./static:/usr/src/app/static:rw
     restart: unless-stopped
@@ -23,8 +24,12 @@ services:
     networks:
       - anime_quiz
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: celery -A anime_quiz inspect ping
+      start_period: 30s
     env_file:
       - .env
   redis:
@@ -39,6 +44,8 @@ services:
       - redis_data:/data
     networks:
       - anime_quiz
+    healthcheck:
+      test: redis-cli ping | grep PONG
     restart: unless-stopped
 
 networks:
