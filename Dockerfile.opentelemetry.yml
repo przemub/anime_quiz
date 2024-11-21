@@ -1,0 +1,22 @@
+# Version augmented by opentelemetry.io
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install aws-opentelemetry-distro opentelemetry-instrumentation-django opentelemetry-instrumentation-requests \
+  opentelemetry-instrumentation-celery opentelemetry-instrumentation-redis
+RUN opentelemetry-bootstrap -a install
+
+ENV OTEL_RESOURCE_ATTRIBUTES="service.name=Anime Themes Quiz,deployment.environment=generic:default"
+ENV OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf"
+ENV OTEL_EXPORTER_OTLP_TRACES_ENDPOINT="http://172.17.0.1:4316/v1/traces"
+ENV OTEL_AWS_APPLICATION_SIGNALS_EXPORTER_ENDPOINT="http://172.17.0.1:4316/v1/metrics"
+ENV OTEL_METRICS_EXPORTER=none
+ENV OTEL_LOGS_EXPORTER=none
+ENV OTEL_TRACES_SAMPLER=xray
+ENV OTEL_TRACES_SAMPLER_ARG="endpoint=http://172.17.0.1:2000"
+ENV OTEL_AWS_APPLICATION_SIGNALS_ENABLED=true
+
+ENV OTEL_PYTHON_DISTRO="aws_distro"
+ENV OTEL_PYTHON_CONFIGURATOR="aws_configurator"
+
+CMD opentelemetry-instrument \
+    uwsgi --ini uwsgi.cfg
