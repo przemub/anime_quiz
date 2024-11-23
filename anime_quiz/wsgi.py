@@ -7,7 +7,7 @@ For more information on this file, see
 https://docs.djangoproject.com/en/3.1/howto/deployment/wsgi/
 """
 
-#      Copyright (c) 2021 Przemysław Buczkowski
+#      Copyright (c) 2021-24 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -29,5 +29,17 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "anime_quiz.settings_prod")
+
+try:
+    from uwsgidecorators import postfork
+    from opentelemetry.instrumentation.django import DjangoInstrumentor
+    from opentelemetry.instrumentation.redis import RedisInstrumentor
+except ImportError:
+    pass
+else:
+    @postfork
+    def init_tracing():
+        DjangoInstrumentor().instrument()
+        RedisInstrumentor().instrument()
 
 application = get_wsgi_application()

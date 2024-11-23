@@ -1,14 +1,19 @@
 FROM python:3.12 AS build
 WORKDIR /usr/src/app
 
+ARG EXTRAS=""
+
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/pip pip install --root-user-action ignore build
 
 RUN --mount=type=cache,target=/root/.cache/pip python -m build -w
-RUN --mount=type=cache,target=/root/.cache/pip pip install --root-user-action ignore dist/anime_quiz-*.whl
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --root-user-action ignore dist/anime_quiz-0.1-py3-none-any.whl${EXTRAS}
 RUN python manage.py collectstatic --no-input
 
 FROM python:3.12 AS runtime
+
+ARG EXTRAS=""
 
 # Expose uwsgi socket and HTTP
 EXPOSE 12345 8009
@@ -22,7 +27,8 @@ WORKDIR /usr/src/app
 COPY uwsgi.cfg .
 COPY --from=build /usr/src/app/dist dist
 COPY --from=build /usr/src/app/static static
-RUN --mount=type=cache,target=/root/.cache/pip pip install --root-user-action ignore dist/anime_quiz-*.whl
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --root-user-action ignore dist/anime_quiz-0.1-py3-none-any.whl${EXTRAS}
 RUN rm -r dist
 
 USER app

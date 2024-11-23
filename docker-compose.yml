@@ -22,7 +22,7 @@ services:
   tasks:
     build:
       context: .
-    entrypoint: python -m quiz.tasks
+    command: python -m quiz.tasks
     networks:
       - anime_quiz
     depends_on:

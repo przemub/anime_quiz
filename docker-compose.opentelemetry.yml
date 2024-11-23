@@ -1,0 +1,25 @@
+x-environment: &environment
+  - OTEL_RESOURCE_ATTRIBUTES=service.name=Anime Themes Quiz,deployment.environment=generic:default
+  - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+  - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://172.17.0.1:4318/v1/traces
+  #- OTEL_AWS_APPLICATION_SIGNALS_EXPORTER_ENDPOINT=http://172.17.0.1:4316/v1/metrics
+  - OTEL_METRICS_EXPORTER=none
+  - OTEL_LOGS_EXPORTER=none
+  - OTEL_TRACES_SAMPLER=xray
+  - OTEL_TRACES_SAMPLER_ARG=endpoint=http://172.17.0.1:2000
+  - OTEL_AWS_APPLICATION_SIGNALS_ENABLED=true
+
+services:
+  anime_quiz:
+    build:
+      args:
+        - EXTRAS=[opentelemetry]
+    environment: *environment
+    command: opentelemetry-instrument uwsgi --ini uwsgi.cfg
+
+  tasks:
+    build:
+      args:
+        - EXTRAS=[opentelemetry]
+    environment: *environment
+    command: opentelemetry-instrument python -m quiz.tasks
