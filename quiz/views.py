@@ -16,8 +16,6 @@
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 import random as random_module
 
-from animethemes_dl import OPTIONS as ANIMETHEMES_OPTIONS, MyanimelistException
-from animethemes_dl.parsers.myanimelist import get_raw_mal, filter_mal
 from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse
@@ -25,6 +23,7 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
+from .mal import get_raw_mal, filter_mal, MAL_OPTIONS, MyanimelistException
 from .tasks import GetUserThemesTask, GetLyricsTask
 
 random = random_module.SystemRandom()
@@ -62,7 +61,7 @@ class UserThemesView(View):
             mal_data = get_raw_mal(user)
             cache.set(mal_key, mal_data, 60 * 60 * 24 * 7)  # Expire in a week
 
-        ANIMETHEMES_OPTIONS["statuses"] = statuses
+        MAL_OPTIONS["statuses"] = statuses
         mal_data = filter_mal(mal_data)
 
         cache_near_misses = []

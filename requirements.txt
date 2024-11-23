@@ -9,6 +9,3 @@ first==2.0.2
 redis~=5.2.0
 requests~=2.32.3
 uWSGI~=2.0.28
-
-# animethemes-dl~=2.2.0
-git+https://github.com/przemub/animethemes-dl@quiz
