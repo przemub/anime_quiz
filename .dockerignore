@@ -1,4 +1,6 @@
 venv
 .idea
-.git
+.github
+build
+dist
 static

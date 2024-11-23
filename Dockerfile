@@ -1,4 +1,14 @@
-FROM python:3.12
+FROM python:3.12 AS build
+WORKDIR /usr/src/app
+
+COPY . .
+RUN --mount=type=cache,target=/root/.cache/pip pip install build
+
+RUN --mount=type=cache,target=/root/.cache/pip python -m build -w
+RUN --mount=type=cache,target=/root/.cache/pip pip install dist/anime_quiz-*.whl
+RUN python manage.py collectstatic --no-input
+
+FROM python:3.12 AS runtime
 
 # Expose uwsgi socket and HTTP
 EXPOSE 12345 8009
@@ -7,15 +17,11 @@ HEALTHCHECK --start-period=5m \
 CMD uwsgi --ini uwsgi.cfg
 
 RUN useradd -d /usr/src/app -s /bin/bash app
-RUN apt-get update && apt-get install -y libpcre3 libpcre3-dev && rm -r /var/cache/apt/*  # For uWSGI
 
 WORKDIR /usr/src/app
-
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-RUN python manage.py collectstatic --no-input
+COPY --from=build /usr/src/app/dist dist
+COPY --from=build /usr/src/app/static static
+RUN --mount=type=cache,target=/root/.cache/pip pip install dist/anime_quiz-*.whl
+RUN rm -r dist
 
 USER app
