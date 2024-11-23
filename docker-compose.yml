@@ -8,8 +8,10 @@ services:
     ports:
       - 8009:8009
     depends_on:
-      celery_worker:
+      redis:
         condition: service_healthy
+      tasks:
+        condition: service_started
     volumes:
       - ./static:/usr/src/app/static:rw
     restart: unless-stopped
@@ -17,19 +19,16 @@ services:
       - DJANGO_SETTINGS_MODULE=anime_quiz.settings_prod
     env_file:
       - .env
-  celery_worker:
+  tasks:
     build:
       context: .
-    entrypoint: celery -A anime_quiz worker -E -l INFO
+    entrypoint: python -m quiz.tasks
     networks:
       - anime_quiz
     depends_on:
       redis:
         condition: service_healthy
     restart: unless-stopped
-    healthcheck:
-      test: celery -A anime_quiz inspect ping
-      start_period: 30s
     env_file:
       - .env
   redis:

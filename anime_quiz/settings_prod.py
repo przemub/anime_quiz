@@ -27,12 +27,15 @@ if os.environ.get("QUIZ_BUGSNAG", None):
     BUGSNAG = {
         "api_key": os.environ["QUIZ_BUGSNAG"],
         "project_root": "/usr/src/app",
+        "ignore_classes": ["django.http.Http404"],
+        "release_stage": "production"
     }
 
     LOGGING["handlers"]["bugsnag"] = {
         "level": "INFO",
         "class": "bugsnag.handlers.BugsnagHandler",
+        "formatter": "default",
     }
-    LOGGING["loggers"]["django"]["handlers"].append("bugsnag")
+    LOGGING["loggers"]["root"]["handlers"].append("bugsnag")
 
     MIDDLEWARE += ["bugsnag.django.middleware.BugsnagMiddleware"]

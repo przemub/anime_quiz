@@ -14,121 +14,163 @@
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
-import abc
+import json
+import logging
+import os
+import threading
 import time
+from typing import NoReturn
 from urllib.error import HTTPError
 
 import animelyrics
-from celery.utils.log import get_task_logger
+import bugsnag
+import redis
 from django.conf import settings
 from django.core.cache import cache
 from first import first
 
 from quiz.animethemes import request_anime, AnimeThemesTryLater
 
-logger = get_task_logger(__name__)
+logger = logging.getLogger(__name__)
+
 
 MISSING_IN_ANIMETHEMES = 1
 
 
-class TaskBase(abc.ABC):
+def redis_client() -> redis.Redis:
+    return redis.from_url(
+        settings.QUEUE_DB,
+        decode_responses=True,
+        protocol=3
+    )
+
+
+class TaskBase:
     name: str
+    _current_priority: int
 
     def __init__(self):
+        self._client = redis_client()
         super().__init__()
 
-    def after_return(self, _status, _retval, _task_id, _args, _kwargs, _einfo):
-        pass
-
-    def run(self, **kwargs):
+    def run(self, **kwargs) -> None:
         raise NotImplementedError()
 
+    def after_return(self, **kwargs) -> None:
+        pass
 
-class GetUserThemesTaskBase(TaskBase):
+    def add_tasks(self, tasks: list[tuple[dict[str, object], int]]) -> None:
+        logger.info(
+            f"Received tasks %s: %s",
+            self.name,
+            tasks
+        )
+
+        serialized_mapping = {
+            json.dumps(kwargs): priority
+            for kwargs, priority in tasks
+        }
+        self._client.zadd(self.name, serialized_mapping, lt=True)
+
+    def listen_for_tasks(self) -> NoReturn:
+        logger.info(f"Listening for tasks %s", self.name)
+
+        while True:
+            _name, serialized_kwargs, self._current_priority = self._client.bzpopmin(self.name)
+            kwargs = json.loads(serialized_kwargs)
+
+            logger.info(
+                f"Executing task %s, kwargs %s, priority %s",
+                self.name,
+                kwargs,
+                self._current_priority
+            )
+
+            try:
+                self.run(**kwargs)
+            except Exception as e:  # noqa
+                logger.exception(
+                    "Failed to execute task %s, kwargs %s!",
+                    self.name,
+                    kwargs
+                )
+                if settings.get("BUGSNAG"):
+                    bugsnag.notify(e)
+            else:
+                logger.info(
+                    "Executed task %s, kwargs %s successfully!",
+                    self.name,
+                    kwargs
+                )
+            finally:
+                self.after_return(**kwargs)
+
+
+class GetUserThemesTask(TaskBase):
     name = "get_user_themes_task"
 
     def __init__(self):
         super().__init__()
-        self.started_key = None
 
-    def after_return(self, _status, _retval, _task_id, _args, _kwargs, _einfo):
-        if self.started_key:
-            cache.delete(self.started_key)
+    def run(self, *, mal_id, anime_title):
+        anime_key = f"themes-{mal_id}"
 
-    def run(self, *, user, themes):
-        self.started_key = f"started_user_{user}"
-        cache.set(self.started_key, True, 60 * 60)
+        # Check if the anime has not been fetched in the meantime
+        if (
+            cache.get(anime_key, None) is not None
+            and cache.ttl(anime_key) >= settings.NEAR_CACHE_MISS_SECS
+        ):
+            logger.debug("%s already fetched", anime_title)
+            return
 
-        count, total = 1, len(themes)
-        new_themes = []
-        while themes:
-            for anime_id, anime_title in themes:
-                anime_key = f"themes-{anime_id}"
+        while True:
+            try:
+                result = request_anime(mal_id, anime_title)
+                break
+            except AnimeThemesTryLater as atl:
+                logger.info(atl.message())
+                time.sleep(atl.retry_after)
 
-                # Check if the anime has not been fetched in the meantime
-                if (
-                    cache.get(anime_key, None) is not None
-                    and cache.ttl(anime_key) >= settings.NEAR_CACHE_MISS_SECS
-                ):
-                    continue
+        # Expire in a month
+        cache.set(
+            anime_key,
+            result,
+            60 * 60 * 24 * 30,
+        )
 
-                try:
-                    result = request_anime(anime_id, anime_title)
-
-                    # Expire in a month
-                    cache.set(
-                        anime_key,
-                        result,
-                        60 * 60 * 24 * 30,
-                    )
-                    logger.info(f"{count}/{total}")
-                    count += 1
-
-                    for theme in result:
-                        GetLyricsTask().delay(theme=theme)
-                except AnimeThemesTryLater as e:
-                    new_themes.append((anime_id, anime_title))
-                    logger.info(e.message())
-                    time.sleep(e.retry_after)
-
-            themes = new_themes
-            new_themes = []
+        if result:
+            GetLyricsTask().add_tasks([
+                ({
+                    "song_id": theme["song"]["id"],
+                    "anime_title": theme["anime_title"],
+                    "song_title": theme["song"]["title"]
+                }, self._current_priority)
+                for theme in result
+            ])
 
 
-def find_cached_lyrics(theme) -> str | None:
-    cache_key = f"lyrics-{theme['song']['id']}"
+def find_cached_lyrics(song_id) -> str | None:
+    cache_key = f"lyrics-{song_id}"
 
     return cache.get(cache_key, None)
 
 
-class TryAfterException(Exception):
-    """The exception raised when there is a 429 returned from the API."""
-
-    def __init__(self, retry_after: int):
-        """
-        :param retry_after: Seconds to wait requested by the server.
-        """
-        self.retry_after = retry_after
-
-    def message(self):
-        return f"Throttled. Trying again in {self.retry_after} seconds."
-
-
-class GetLyricsTaskBase(TaskBase):
+class GetLyricsTask(TaskBase):
     name = "get_lyrics_task"
 
-    def run(self, *, theme):
-        cached_lyrics = find_cached_lyrics(theme)
+    def run(self, *, song_id, anime_title, song_title):
+        cache_key = f"lyrics-{song_id}"
+
+        cached_lyrics = find_cached_lyrics(song_id)
         if cached_lyrics is not None:
             return cached_lyrics
 
-        cache_key = f"lyrics-{theme['song']['id']}"
-
+        # Less-and-less strict Google queries
         queries = [
-            f'"{theme["anime_title"]}" "{theme["song"]["title"]}"',
-            f"{theme['anime_title']} {theme['song']['title']}",
-            f'"{theme["song"]["title"]}"',
-            theme["song"]["title"]
+            f'"{anime_title}" "{song_title}"',
+            f"{anime_title} {song_title}",
+            f'"{song_title}"',
+            song_title
         ]
 
         def run_query(query: str):
@@ -139,7 +181,7 @@ class GetLyricsTaskBase(TaskBase):
                     return None
                 except HTTPError as he:
                     if he.code == 429:
-                        print("Google hates us now. Waiting for 60 secs.")
+                        logger.info("Google hates us now. Waiting for 60 secs.")
                         time.sleep(60)
                         continue
                     raise Exception("Failed to query lyrics") from he
@@ -152,28 +194,25 @@ class GetLyricsTaskBase(TaskBase):
         return lyrics
 
 
-if settings.TASK_BACKEND == "celery":
-    from anime_quiz.celery import app
+def listen_for_tasks():
+    """
+    When started from command line, listen for tasks.
+    """
+    tasks = [GetUserThemesTask(), GetLyricsTask()]
+    threads = [threading.Thread(target=task.listen_for_tasks) for task in tasks]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
 
 
-    class GetLyricsTask(GetLyricsTaskBase, app.Task):
+if __name__ == "__main__":
+    import django
+
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "anime_quiz.settings")
+    django.setup()
+
+    try:
+        listen_for_tasks()
+    except KeyboardInterrupt:
         pass
-
-
-    class GetUserThemesTask(GetUserThemesTaskBase, app.Task):
-        pass
-
-
-    app.register_task(GetLyricsTask())
-    app.register_task(GetUserThemesTask())
-
-elif settings.TASK_BACKEND == "gcp":
-    from quiz.gcp import make_gcp_task
-    from django_cloud_tasks.tasks import task
-
-    GetLyricsTask = make_gcp_task(GetLyricsTaskBase)
-    GetUserThemesTask = make_gcp_task(GetUserThemesTaskBase)
-    task.register(GetLyricsTask)
-    task.register(GetUserThemesTask)
-else:
-    raise ValueError("Unsupported task backend")

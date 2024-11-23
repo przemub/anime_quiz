@@ -24,7 +24,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
 from .mal import get_raw_mal, filter_mal, MAL_OPTIONS, MyanimelistException
-from .tasks import GetUserThemesTask, GetLyricsTask, find_cached_lyrics
+from .tasks import GetUserThemesTask, find_cached_lyrics
 
 random = random_module.SystemRandom()
 
@@ -49,12 +49,6 @@ class UserThemesView(View):
         if result := cache.get(result_key, None):
             return result
 
-        started_key = f"started_user_{user}"
-        if cache.get(started_key, False):
-            raise TaskStatus(
-                f"User {user} has been already enqueued. Please wait."
-            )
-
         mal_key = f"user_mal_{user}"
         mal_data = cache.get(mal_key, None)
         if mal_data is None:
@@ -72,28 +66,41 @@ class UserThemesView(View):
             anime_key = f"themes-{mal_id}"
             anime_data = cache.get(anime_key, None)
             if anime_data is None:
-                cache_misses.append((mal_id, title))
+                cache_misses.append({"mal_id": mal_id, "anime_title": title})
             else:
                 cache_hits.extend(anime_data)
                 if cache.ttl(anime_key) < settings.NEAR_CACHE_MISS_SECS:
-                    cache_near_misses.append((mal_id, title))
+                    cache_misses.append({"mal_id": mal_id, "anime_title": title})
 
         if cache_near_misses:
-            GetUserThemesTask().delay(
-                user=user + "/near_misses",
-                themes=cache_near_misses
-            )
+            GetUserThemesTask().add_tasks([
+                (anime, 10001)
+                for anime in cache_near_misses
+            ])
 
         started_key = f"started_user_{user}"
         if not cache_misses:
+            # Fully retrieved, cache and return
             cache.set(result_key, cache_hits, 60 * 60 * 24 * 7)
             return cache_hits
+        elif cache_hits and cache.get(started_key, False):
+            # Already started, return partially retrieved results
+            return cache_hits
         elif cache.get(started_key, False):
-            raise TaskStatus(
-                f"User {user} has been already enqueued. Please wait."
-            )
+            # Already started but nothing retrieved, fail
+            raise TaskStatus(f"User {user} has already been enqueued, please wait.")
         else:
-            GetUserThemesTask().delay(user=user, themes=cache_misses)
+            # Start tasks to retrieve themes for the user
+            random.shuffle(cache_misses)
+            GetUserThemesTask().add_tasks([
+                (anime, i)
+                for i, anime in enumerate(cache_misses)
+            ])
+            cache.set(started_key, True, 60 * 60 * 24)
+
+            # Return songs already in the cache
+            if cache_hits:
+                return cache_hits
             raise TaskStatus(f"User {user} has been enqueued just now.")
 
     @staticmethod
@@ -257,7 +264,7 @@ class UserThemesView(View):
             random.choice(theme["animethemeentries"])["videos"]
         )["link"].replace("staging.", "")
 
-        lyrics = find_cached_lyrics(theme=theme) or "Not found yet"
+        lyrics = find_cached_lyrics(song_id=theme["id"]) or "Not found yet"
 
         context = {
             "url": url,

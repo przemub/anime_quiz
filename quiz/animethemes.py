@@ -82,8 +82,14 @@ class Resource(TypedDict):
     site: str
 
 
+class Song(TypedDict):
+    id: int
+    title: str
+
+
 class Theme(TypedDict):
     anime_title: str
+    song: Song
 
 
 class Anime(AnimeSearchResult):

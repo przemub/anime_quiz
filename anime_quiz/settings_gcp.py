@@ -14,10 +14,12 @@
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
-
 import google.cloud.logging
+import warnings
 
 from .settings import *  # noqa
+
+warnings.warn("GCP tasks backend is not currently working!")
 
 DEBUG = False
 

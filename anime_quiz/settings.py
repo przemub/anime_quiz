@@ -53,14 +53,20 @@ LOGGING = {
             "level": "DEBUG",
             "filters": None,
             "class": "logging.StreamHandler",
+            "formatter": "default",
         },
     },
+    "formatters": {
+        "default": {
+            "format": "{levelname} {module} {message}",
+            "style": "{",
+        }
+    },
     "loggers": {
-        "django": {
+        "root": {
             "handlers": ["console"],
             "level": "INFO",
         },
-        "animethemes-dl": {"handlers": ["console"], "level": "INFO"},
     },
 }
 
@@ -171,12 +177,9 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_AGE = 60 * 60 * 24
 
-TASK_BACKEND = "celery"
-
-CELERY_TIMEZONE = "Europe/London"
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 60 * 60 * 6
-
 NEAR_CACHE_MISS_SECS = 60 * 10
 
 INTERNAL_IPS = os.getenv("INTERNAL_IPS", "192.168.1.1").split(",")
+
+# Redis database used as a queue for tasks.
+QUEUE_DB = "redis://redis:6379/1"
