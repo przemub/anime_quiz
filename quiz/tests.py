@@ -1,4 +1,4 @@
-#      Copyright (c) 2021 Przemysław Buczkowski
+#      Copyright (c) 2021-24 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -22,6 +22,10 @@ from quiz.animethemes import request_anime
 from quiz.views import UserThemesView, TaskStatus
 
 
+def _make_theme(mal_id: int, anime_title: str):
+    return {"mal_id": mal_id, "anime_title": anime_title}
+
+
 @override_settings(
     CACHES={
         "default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}
@@ -33,7 +37,7 @@ class MyAnimeListTestCase(TestCase):
     if it queued the job to get themes from animethemes.moe.
     """
 
-    @mock.patch("quiz.views.GetUserThemesTask.delay")
+    @mock.patch("quiz.views.GetUserThemesTask.add_tasks")
     def test_get_watching_themes(self, mock_task):
         """
         Calls _get_user_themes and checks whether a task to pull
@@ -41,12 +45,13 @@ class MyAnimeListTestCase(TestCase):
         """
         with self.assertRaises(TaskStatus):
             UserThemesView._get_user_themes("quiz_moe_testing", [1])
-        mock_task.assert_called_once_with(
-            user="quiz_moe_testing",
-            themes=[(5114, "Fullmetal Alchemist: Brotherhood")]
+        mock_task.assert_called_once()
+        self.assertEqual(
+            [_make_theme(5114, "Fullmetal Alchemist: Brotherhood")],
+            [theme for theme, _priority in mock_task.call_args.args[0]]
         )
 
-    @mock.patch("quiz.views.GetUserThemesTask.delay")
+    @mock.patch("quiz.views.GetUserThemesTask.add_tasks")
     def test_get_completed_themes(self, mock_task):
         """
         Calls _get_user_themes and checks whether a task to pull
@@ -54,16 +59,17 @@ class MyAnimeListTestCase(TestCase):
         """
         with self.assertRaises(TaskStatus):
             UserThemesView._get_user_themes("quiz_moe_testing", [2])
-        mock_task.assert_called_once_with(
-            user="quiz_moe_testing",
-            themes=[
-                (17074, "Monogatari Series: Second Season"),
-                (9253, "Steins;Gate"),
-                (7785, "Yojouhan Shinwa Taikei"),
+        mock_task.assert_called_once()
+        self.assertEqual(
+            [
+                _make_theme(17074, "Monogatari Series: Second Season"),
+                _make_theme(9253, "Steins;Gate"),
+                _make_theme(7785, "Yojouhan Shinwa Taikei"),
             ],
+            sorted((theme for theme, _priority in mock_task.call_args.args[0]), key=lambda theme: theme["anime_title"])
         )
 
-    @mock.patch("quiz.views.GetUserThemesTask.delay")
+    @mock.patch("quiz.views.GetUserThemesTask.add_tasks")
     def test_get_watching_and_completed_themes(self, mock_task):
         """
         Calls _get_user_themes and checks whether a task to pull
@@ -71,14 +77,15 @@ class MyAnimeListTestCase(TestCase):
         """
         with self.assertRaises(TaskStatus):
             UserThemesView._get_user_themes("quiz_moe_testing", [1, 2])
-        mock_task.assert_called_once_with(
-            user="quiz_moe_testing",
-            themes=[
-                (5114, "Fullmetal Alchemist: Brotherhood"),
-                (17074, "Monogatari Series: Second Season"),
-                (9253, "Steins;Gate"),
-                (7785, "Yojouhan Shinwa Taikei"),
+        mock_task.assert_called_once()
+        self.assertEqual(
+            [
+                _make_theme(5114, "Fullmetal Alchemist: Brotherhood"),
+                _make_theme(17074, "Monogatari Series: Second Season"),
+                _make_theme(9253, "Steins;Gate"),
+                _make_theme(7785, "Yojouhan Shinwa Taikei"),
             ],
+            sorted((theme for theme, _priority in mock_task.call_args.args[0]), key=lambda theme: theme["anime_title"])
         )
 
 

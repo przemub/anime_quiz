@@ -20,7 +20,10 @@ jobs:
       - name: Check logs
         run: docker compose -f docker-compose.yml -f docker-compose.dev.yml logs
       - name: Run test suite
-        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml exec -T anime_quiz python manage.py test
+        run: >
+          docker compose -f docker-compose.yml -f docker-compose.dev.yml
+          run --rm -w "/usr/local/lib/python3.12/site-packages/quiz" anime_quiz
+          django-admin test -t "/usr/local/lib/python3.12/site-packages/quiz"
   release:
     name: Push to Docker Hub
     runs-on: ubuntu-latest
