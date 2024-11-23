@@ -1,16 +1,16 @@
 [tool.setuptools]
-packages = ["quiz", "quiz.migrations", "anime_quiz"]
+packages = ["quiz", "quiz.migrations", "quiz.templates.quiz", "quiz.static.quiz", "anime_quiz"]
 include-package-data = true
 
 [tool.setuptools_scm]
 
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "anime_quiz"
-dynamic = ["version"]
+version = "0.1"
 requires-python = ">=3.8"
 authors = [{name = "Przemysław Buczkowski", email = "prem@prem.moe"}]
 description = "Anime Themes Quiz for people with taste."

@@ -1,0 +1,8 @@
+graft anime_quiz
+graft quiz
+
+include COPYING
+include README.md
+
+global-exclude *~ *.py[cod] *.so
+

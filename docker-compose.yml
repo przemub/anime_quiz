@@ -28,6 +28,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    environment:
+      - DJANGO_SETTINGS_MODULE=anime_quiz.settings_prod
     restart: unless-stopped
     env_file:
       - .env
