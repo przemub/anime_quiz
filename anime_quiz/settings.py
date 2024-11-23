@@ -55,6 +55,11 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "default",
         },
+        "bugsnag": {
+            "level": "WARNING",
+            "class": "bugsnag.handlers.BugsnagHandler",
+            "formatter": "default",
+        },
     },
     "formatters": {
         "default": {
@@ -180,6 +185,17 @@ SESSION_COOKIE_AGE = 60 * 60 * 24
 NEAR_CACHE_MISS_SECS = 60 * 10
 
 INTERNAL_IPS = os.getenv("INTERNAL_IPS", "192.168.1.1").split(",")
+
+BUGSNAG = None
+if "QUIZ_BUGSNAG" in os.environ:
+    BUGSNAG = {
+        "api_key": os.environ["QUIZ_BUGSNAG"],
+        "project_root": "/usr/src/app",
+        "ignore_classes": ["django.http.Http404"],
+        "release_stage": "development"
+    }
+    LOGGING["loggers"]["root"]["handlers"].append("bugsnag")
+    MIDDLEWARE.append("bugsnag.django.middleware.BugsnagMiddleware")
 
 # Redis database used as a queue for tasks.
 QUEUE_DB = "redis://redis:6379/1"

@@ -94,7 +94,7 @@ class TaskBase:
                     self.name,
                     kwargs
                 )
-                if settings.get("BUGSNAG"):
+                if settings.BUGSNAG is not None:
                     bugsnag.notify(e)
             else:
                 logger.info(
@@ -211,6 +211,8 @@ if __name__ == "__main__":
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "anime_quiz.settings")
     django.setup()
+    if settings.BUGSNAG is not None:
+        bugsnag.configure(**settings.BUGSNAG)
 
     try:
         listen_for_tasks()

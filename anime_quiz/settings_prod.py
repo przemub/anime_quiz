@@ -23,19 +23,5 @@ if os.environ.get("QUIZ_SECRET_KEY", None):
 else:
     raise Exception("QUIZ_SECRET_KEY environment variable is not set!")
 
-if os.environ.get("QUIZ_BUGSNAG", None):
-    BUGSNAG = {
-        "api_key": os.environ["QUIZ_BUGSNAG"],
-        "project_root": "/usr/src/app",
-        "ignore_classes": ["django.http.Http404"],
-        "release_stage": "production"
-    }
-
-    LOGGING["handlers"]["bugsnag"] = {
-        "level": "INFO",
-        "class": "bugsnag.handlers.BugsnagHandler",
-        "formatter": "default",
-    }
-    LOGGING["loggers"]["root"]["handlers"].append("bugsnag")
-
-    MIDDLEWARE += ["bugsnag.django.middleware.BugsnagMiddleware"]
+if BUGSNAG is not None:
+    BUGSNAG["release_stage"] = "production"
