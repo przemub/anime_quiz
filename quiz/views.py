@@ -24,7 +24,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
 from .mal import get_raw_mal, filter_mal, MAL_OPTIONS, MyanimelistException
-from .tasks import GetUserThemesTask, GetLyricsTask
+from .tasks import GetUserThemesTask, GetLyricsTask, find_cached_lyrics
 
 random = random_module.SystemRandom()
 
@@ -257,7 +257,7 @@ class UserThemesView(View):
             random.choice(theme["animethemeentries"])["videos"]
         )["link"].replace("staging.", "")
 
-        lyrics = GetLyricsTask().run(theme=theme)
+        lyrics = find_cached_lyrics(theme=theme) or "Not found yet"
 
         context = {
             "url": url,

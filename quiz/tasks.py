@@ -95,7 +95,7 @@ class GetUserThemesTaskBase(TaskBase):
             new_themes = []
 
 
-def find_cached_lyrics(theme) -> str:
+def find_cached_lyrics(theme) -> str | None:
     cache_key = f"lyrics-{theme['song']['id']}"
 
     return cache.get(cache_key, None)
@@ -118,6 +118,10 @@ class GetLyricsTaskBase(TaskBase):
     name = "get_lyrics_task"
 
     def run(self, *, theme):
+        cached_lyrics = find_cached_lyrics(theme)
+        if cached_lyrics is not None:
+            return cached_lyrics
+
         cache_key = f"lyrics-{theme['song']['id']}"
 
         queries = [
@@ -128,14 +132,17 @@ class GetLyricsTaskBase(TaskBase):
         ]
 
         def run_query(query: str):
-            try:
-                return animelyrics.search_lyrics(query, lang="jp")
-            except animelyrics.NoLyricsFound:
-                return None
-            except HTTPError as he:
-                if he.code == 429:
-                    return "Not found yet"
-                raise Exception("Failed to query lyrics") from he
+            while True:
+                try:
+                    return animelyrics.search_lyrics(query, lang="jp")
+                except animelyrics.NoLyricsFound:
+                    return None
+                except HTTPError as he:
+                    if he.code == 429:
+                        print("Google hates us now. Waiting for 60 secs.")
+                        time.sleep(60)
+                        continue
+                    raise Exception("Failed to query lyrics") from he
 
         lyrics = first(run_query(q) for q in queries) or "Not found"
         lyrics = lyrics.replace("\n", "<br>")
