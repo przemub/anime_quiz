@@ -157,6 +157,10 @@ def find_cached_lyrics(song_id) -> str | None:
 class GetLyricsTask(TaskBase):
     name = "get_lyrics_task"
 
+    def __init__(self):
+        self.waiting_time = 15
+        super().__init__()
+
     def run(self, *, song_id, anime_title, song_title):
         cache_key = f"lyrics-{song_id}"
 
@@ -173,17 +177,22 @@ class GetLyricsTask(TaskBase):
         ]
 
         def run_query(query: str):
+
             while True:
                 try:
-                    return animelyrics.search_lyrics(query, lang="jp")
+                    lyrics = animelyrics.search_lyrics(query, lang="jp")
                 except animelyrics.NoLyricsFound:
                     return None
                 except HTTPError as he:
                     if he.code == 429:
-                        logger.info("Google hates us now. Waiting for 60 secs.")
-                        time.sleep(60)
+                        logger.info("Google hates us now. Waiting for %d secs.", self.waiting_time)
+                        time.sleep(self.waiting_time)
+                        self.waiting_time *= 2
                         continue
                     raise Exception("Failed to query lyrics") from he
+
+                self.waiting_time /= 2
+                return lyrics
 
         lyrics = first(run_query(q) for q in queries) or "Not found"
         lyrics = lyrics.replace("\n", "<br>")
