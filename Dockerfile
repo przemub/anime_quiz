@@ -18,7 +18,7 @@ ARG EXTRAS=""
 # Expose uwsgi socket and HTTP
 EXPOSE 12345 8009
 HEALTHCHECK --start-period=5m \
-  CMD curl -f http://localhost:8009/ || exit 1
+  CMD curl -fI http://localhost:8009/ || exit 1
 CMD uwsgi --ini uwsgi.cfg
 
 RUN useradd -d /usr/src/app -s /bin/bash app

@@ -31,6 +31,8 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=anime_quiz.settings_prod
     restart: unless-stopped
+    healthcheck:
+      disable: true
     env_file:
       - .env
   redis:
