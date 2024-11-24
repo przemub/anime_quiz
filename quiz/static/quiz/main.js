@@ -116,7 +116,15 @@ async function loadNextSong () {
   const leftAside = document.getElementById('left-aside')
   const newLyrics = playerDiv.querySelector('#lyrics')
   const oldLyrics = leftAside.querySelector('#lyrics')
+  const lyricsTab = leftAside.querySelector('#lyrics-tab')
   oldLyrics.replaceWith(newLyrics)
+  if (lyricsTab.ariaSelected === "true") {
+    // Reload lyrics tab
+    const settingsTab = leftAside.querySelector('#settings-tab')
+
+    settingsTab.click()
+    lyricsTab.click()
+  }
 
   initializePlayer()
 }

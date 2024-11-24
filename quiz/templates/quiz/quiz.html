@@ -62,7 +62,7 @@ along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
         <a href="#" class="nav-link"
            data-name="quiz"
            data-tld="moe"
-           data-domain="prem"
+           data-domain="quiz"
            onclick="window.location.href = 'mailto:' + this.dataset.name + '@' + this.dataset.domain + '.' + this.dataset.tld; return false;">Suggestions?</a>
        </li>
         <li class="nav-item">
@@ -166,7 +166,7 @@ along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 
         <div class="auto-size order-lg-1 text-center" id="player-div">
 {% endif %}
-            <video id="player" preload="auto" height="100px" disablePictureInPicture playsinline>
+            <video id="player" preload="auto" height="100px" disablePictureInPicture>
                 <source src="{{ url }}" type="video/webm">
             </video>
 
