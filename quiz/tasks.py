@@ -95,7 +95,13 @@ class TaskBase:
                     kwargs
                 )
                 if settings.BUGSNAG is not None:
-                    bugsnag.notify(e)
+                    bugsnag.notify(
+                        e,
+                        metadata={
+                            "task": self.name,
+                            "task_kwargs": kwargs
+                        }
+                    )
             else:
                 logger.info(
                     "Executed task %s, kwargs %s successfully!",
@@ -189,7 +195,7 @@ class GetLyricsTask(TaskBase):
                         time.sleep(self.waiting_time)
                         self.waiting_time *= 2
                         continue
-                    raise Exception("Failed to query lyrics") from he
+                    raise Exception("Failed to query /lyrics") from he
 
                 self.waiting_time /= 2
                 return lyrics
