@@ -112,6 +112,12 @@ async function loadNextSong () {
     oldAlert.remove()
   }
 
+  // Move the lyrics as well.
+  const leftAside = document.getElementById('left-aside')
+  const newLyrics = playerDiv.querySelector('#lyrics')
+  const oldLyrics = leftAside.querySelector('#lyrics')
+  oldLyrics.replaceWith(newLyrics)
+
   initializePlayer()
 }
 

@@ -149,6 +149,7 @@ along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
                 <button class="btn btn-outline-primary w-100 mt-2" type="button" id="play-btn" onclick="loadNextSong();">Play!</button>
                 </form>
             </div>
+{% endif %}
             <div class="tab-pane fade" id="lyrics" role="tabpanel" aria-labelledby="lyrics-tab">
                 <div id="lyrics-text" style="display: none;">
                     {{ lyrics }}
@@ -160,6 +161,7 @@ along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
                 <br><br>
                 From <a href="https://www.animelyrics.com/">animelyrics.com</a>.
             </div>
+{% if not send_just_player %}
         </aside>
 
         <div class="auto-size order-lg-1 text-center" id="player-div">

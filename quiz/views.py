@@ -16,7 +16,6 @@
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 import random as random_module
 
-from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import render
