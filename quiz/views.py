@@ -57,6 +57,9 @@ class UserThemesView(View):
         MAL_OPTIONS["statuses"] = statuses
         mal_data = filter_mal(mal_data)
 
+        if not mal_data:
+            return []
+
         cache_misses = []
         cache_hits = []
 
