@@ -53,6 +53,9 @@ opentelemetry = [
     "opentelemetry-instrumentation-redis"
 ]
 
+[project.scripts]
+anime_quiz-manage = "anime_quiz:django_manage"
+
 [project.urls]
 Homepage = "https://quiz.moe"
 Repository = "https://github.com/przemub/anime_quiz"

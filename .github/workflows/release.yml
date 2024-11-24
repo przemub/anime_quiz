@@ -65,7 +65,7 @@ jobs:
           git pull
           docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml pull
           docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml build --pull
-          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml run --rm -v "$(pwd)/static:/app/static" --user $(id -u):$(id -g) anime_quiz python manage.py collectstatic --no-input
+          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml run --rm -v "$(pwd)/static:/usr/src/app/static" --user $(id -u):$(id -g) anime_quiz anime_quiz-manage collectstatic --no-input
           docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml build --pull
           docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml up -d
           docker system prune -f

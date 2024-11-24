@@ -14,3 +14,10 @@
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
+import os
+import sys
+
+def django_manage():
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "anime_quiz.settings")
+    from django.core.management import execute_from_command_line
+    execute_from_command_line(sys.argv)
