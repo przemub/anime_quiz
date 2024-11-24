@@ -85,7 +85,11 @@ async function loadNextSong () {
   const urlParams = new URLSearchParams(Array.from(new FormData(settingsForm)))
   urlParams.append('player_only', 'yes')
   const url = window.location.href.split('?')[0] + '?' + urlParams.toString()
-  const response = await fetch(url)
+  const response = await fetch(url).catch((error) => {
+    // Submit the form to reload the page in case of a network error
+    console.error(error)
+    settingsForm.submit()
+  })
 
   if (!response.ok) {
     // Just submit the form to reload the page and see the full error
