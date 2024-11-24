@@ -72,6 +72,9 @@ LOGGING = {
             "handlers": ["console"],
             "level": "INFO",
         },
+        "django.request": {
+            "level": "ERROR",
+        },
     },
 }
 
