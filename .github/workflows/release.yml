@@ -63,8 +63,10 @@ jobs:
         script: |
           cd przemub2/anime_quiz
           git pull
-          docker compose pull
-          docker compose build --pull
-          docker compose run --rm -v "$(pwd)/static:/app/static" --user $(id -u):$(id -g) anime_quiz python manage.py collectstatic --no-input
-          docker compose up -d
+          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml pull
+          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml build --pull
+          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml run --rm -v "$(pwd)/static:/app/static" --user $(id -u):$(id -g) anime_quiz python manage.py collectstatic --no-input
+          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml build --pull
+          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml up -d
           docker system prune -f
+
