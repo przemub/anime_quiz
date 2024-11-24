@@ -69,9 +69,12 @@ def get_mal_part(username: str, **kwargs) -> list:
     r = requests.get(url)
     if r.status_code == 200:
         return r.json()
-    else:
-        logger.info(f"User %s does not exist on MAL.", username)
+    elif r.status_code == 400:
+        logger.info(f"User %s does not exist on MAL. Error: %s", username, r.json())
         raise MyanimelistException(f"User {username} does not exist on MAL.")
+    else:
+        logger.error(f"Failed to download user %s from MAL. Error: %s", username, r.json())
+        raise MyanimelistException(f"Failed to download user {username} from MAL.", username)
 
 
 def get_raw_mal(username: str, **kwargs) -> list:
