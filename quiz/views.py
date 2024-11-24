@@ -58,25 +58,21 @@ class UserThemesView(View):
         MAL_OPTIONS["statuses"] = statuses
         mal_data = filter_mal(mal_data)
 
-        cache_near_misses = []
         cache_misses = []
         cache_hits = []
 
+        cache_data = cache.get_many(
+            f"themes-{mal_id}"
+            for mal_id, _title
+            in mal_data
+        )
+
         for mal_id, title in mal_data:
-            anime_key = f"themes-{mal_id}"
-            anime_data = cache.get(anime_key, None)
+            anime_data = cache_data.get(f"themes-{mal_id}", None)
             if anime_data is None:
                 cache_misses.append({"mal_id": mal_id, "anime_title": title})
             else:
                 cache_hits.extend(anime_data)
-                if cache.ttl(anime_key) < settings.NEAR_CACHE_MISS_SECS:
-                    cache_misses.append({"mal_id": mal_id, "anime_title": title})
-
-        if cache_near_misses:
-            GetUserThemesTask().add_tasks([
-                (anime, 10001)
-                for anime in cache_near_misses
-            ])
 
         started_key = f"started_user_{user}"
         if not cache_misses:

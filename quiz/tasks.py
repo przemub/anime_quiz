@@ -118,7 +118,6 @@ class GetUserThemesTask(TaskBase):
         # Check if the anime has not been fetched in the meantime
         if (
             cache.get(anime_key, None) is not None
-            and cache.ttl(anime_key) >= settings.NEAR_CACHE_MISS_SECS
         ):
             logger.debug("%s already fetched", anime_title)
             return

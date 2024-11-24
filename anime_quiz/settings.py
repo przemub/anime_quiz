@@ -182,8 +182,6 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_AGE = 60 * 60 * 24
 
-NEAR_CACHE_MISS_SECS = 60 * 10
-
 INTERNAL_IPS = os.getenv("INTERNAL_IPS", "192.168.1.1").split(",")
 
 BUGSNAG = None
