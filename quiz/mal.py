@@ -70,7 +70,7 @@ def get_mal_part(username: str, **kwargs) -> list:
     if r.status_code == 200:
         return r.json()
     else:
-        logger.exception(f"[error] User {username} does not exist on MAL.")
+        logger.info(f"User %s does not exist on MAL.", username)
         raise MyanimelistException(f"User {username} does not exist on MAL.")
 
 
