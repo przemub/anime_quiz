@@ -30,16 +30,4 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "anime_quiz.settings_prod")
 
-try:
-    from uwsgidecorators import postfork
-    from opentelemetry.instrumentation.django import DjangoInstrumentor
-    from opentelemetry.instrumentation.redis import RedisInstrumentor
-except ImportError:
-    pass
-else:
-    @postfork
-    def init_tracing():
-        DjangoInstrumentor().instrument()
-        RedisInstrumentor().instrument()
-
 application = get_wsgi_application()

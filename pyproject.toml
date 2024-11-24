@@ -50,8 +50,7 @@ opentelemetry = [
     "aws-opentelemetry-distro",
     "opentelemetry-instrumentation-django",
     "opentelemetry-instrumentation-requests",
-    "opentelemetry-instrumentation-redis",
-    "uwsgidecorators==1.1.0"
+    "opentelemetry-instrumentation-redis"
 ]
 
 [project.urls]
