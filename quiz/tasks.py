@@ -198,6 +198,8 @@ class GetLyricsTask(TaskBase):
                     raise Exception("Failed to query /lyrics") from he
 
                 self.waiting_time /= 2
+                if self.waiting_time < 1:
+                    self.waiting_time = 1
                 return lyrics
 
         lyrics = first(run_query(q) for q in queries) or "Not found"
