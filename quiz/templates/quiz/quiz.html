@@ -134,7 +134,7 @@ along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 
                 <div class="form-group">
                     <label for="time-range" class="form-label">Time to guess</label>
-                    <input type="range" class="form-range" id="time-range" min="0" max="14" value="10" step="1">
+                    <input type="range" class="form-range" id="time-range" min="0" max="15" value="10" step="1">
                     <div id="time-range-out-div">
                         <output id="time-range-out">10</output> s
                     </div>
@@ -195,7 +195,12 @@ along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
                 <button id="clearPlayerBtn" class="btn btn-outline-danger" type="button" onclick="clearPlayer()">Clear the&nbsp;board</button>
             </div>
 
-            <div class="mt-4" id="remram-div">
+            <div class="form-group mt-2">
+                <label for="volume-range" class="form-label">Volume</label>
+                <input type="range" class="form-range" id="volume-range" min="0" max="1" value="0.7" step="0.01">
+            </div>
+
+            <div class="mt-2" id="remram-div">
                 <img src="{% static 'quiz/rem-ram.gif' %}" alt="Rem/Ram" title="Click to hide" id="remram">
                 <button type="button" class="btn" id="remram_show">+</button>
             </div>

@@ -121,6 +121,11 @@ input[type=checkbox] {
     top: 3em;
 }
 
+.form-label {
+    /* I just don't like it. */
+    margin-bottom: 0 !important;
+}
+
 /* Row mode */
 @media (max-width: 991px) {
     aside {

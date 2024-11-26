@@ -122,7 +122,7 @@ async function loadNextSong () {
   const oldLyrics = leftAside.querySelector('#lyrics')
   const lyricsTab = leftAside.querySelector('#lyrics-tab')
   oldLyrics.replaceWith(newLyrics)
-  if (lyricsTab.ariaSelected === "true") {
+  if (lyricsTab.ariaSelected === 'true') {
     // Reload lyrics tab
     const settingsTab = leftAside.querySelector('#settings-tab')
 
@@ -187,11 +187,18 @@ function initializePage () {
   if (isNaN(time)) time = 10
 
   const timeRange = document.getElementById('time-range')
-  timeRange.value = time
+  timeRange.value = time.toString()
   document.getElementById('time-range-out').innerText = timeRange.value
-  timeRange.addEventListener('change', function () {
+  timeRange.addEventListener('input', function () {
     document.getElementById('time-range-out').innerText = timeRange.value
-    localStorage.time = timeRange.value
+    localStorage.setItem('time', timeRange.value)
+  })
+
+  const volumeRange = document.getElementById('volume-range')
+  volumeRange.addEventListener('input', function () {
+    const player = document.getElementById('player')
+    player.volume = parseFloat(volumeRange.value)
+    localStorage.setItem('volume', volumeRange.value)
   })
 
   initResultsSaving()
@@ -216,6 +223,10 @@ function initializePlayer () {
 
   let time = parseInt(localStorage.getItem('time'))
   if (isNaN(time)) time = 10
+
+  let volume = parseFloat(localStorage.getItem('volume'))
+  if (isNaN(volume)) volume = 0.7
+  player.volume = volume
 
   function play () {
     player.removeEventListener('canplaythrough', play)
