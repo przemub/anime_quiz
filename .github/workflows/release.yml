@@ -63,10 +63,10 @@ jobs:
         script: |
           cd przemub2/anime_quiz
           git pull
-          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml pull
-          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml build --pull
-          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml run --rm -v "$(pwd)/static:/usr/src/app/static" --user $(id -u):$(id -g) anime_quiz anime_quiz-manage collectstatic --no-input
-          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml build --pull
-          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml up -d
+          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml -f docker-compose.local.yml pull
+          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml -f docker-compose.local.yml build --pull
+          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml -f docker-compose.local.yml run --rm -v "$(pwd)/static:/usr/src/app/static" --user $(id -u):$(id -g) anime_quiz anime_quiz-manage collectstatic --no-input
+          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml -f docker-compose.local.yml build --pull
+          docker compose -f docker-compose.yml -f docker-compose.opentelemetry.yml -f docker-compose.local.yml up -d
           docker system prune -f
 
