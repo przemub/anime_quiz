@@ -91,7 +91,7 @@ class UserThemesView(View):
             # Start tasks to retrieve themes for the user
             random.shuffle(cache_misses)
             GetUserThemesTask().add_tasks([
-                (anime, i)
+                (anime, i+len(cache_hits))
                 for i, anime in enumerate(cache_misses)
             ])
             cache.set(started_key, True, 60 * 60 * 24)
