@@ -223,7 +223,7 @@ class UserThemesView(View):
                 except TaskStatus as status:
                     return HttpResponse(
                         "quiz.moe is temporarily unavailable. "
-                        "Come back in 10 minutes!<br>Message:<br> "
+                        "Come back in a minute!<br>Message:<br> "
                         + status.args[0],
                         status=503,
                     )
@@ -235,7 +235,7 @@ class UserThemesView(View):
             except TaskStatus as status:
                 return HttpResponse(
                     "quiz.moe is temporarily unavailable. "
-                    "Come back in 10 minutes!<br>Message:<br> "
+                    "Come back in a minute!<br>Message:<br> "
                     + status.args[0],
                     status=503,
                 )
