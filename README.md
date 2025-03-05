@@ -43,6 +43,10 @@ docker-compose exec anime_quiz python manage.py collectstatic
 That's it. Anime Quiz will be run at http://localhost:8009.
 To rebuild, run `docker-compose build` beforehand.
 
+If you want to expose it to the Internet, set `ANIME_QUIZ_HOST_IP`
+to the host IP you want (`0.0.0.0` for access on all networks)
+or, even better, put it behind a reverse proxy.
+
 ### Develop
 
 PRs are welcome! The code is licensed under GNU Affero Public Licence 3.
