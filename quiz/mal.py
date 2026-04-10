@@ -2,7 +2,7 @@
 Adapted from https://github.com/przemub/animethemes-dl/blob/master/animethemes_dl/parsers/myanimelist.py
 
 Copyright (c) 2020 sadru
-Copyright (c) 2024 Przemysław Buczkowski
+Copyright (c) 2024-26 Przemysław Buczkowski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ SOFTWARE.
 import logging
 
 import requests
+import requests.adapters
 
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,15 @@ MAL_OPTIONS = {
     },
     "statuses": [1, 2],
 }
+
+
+class MalRetry(requests.adapters.Retry):
+    def increment(self, method=None, url=None, response=None, error=None, _pool=None, _stacktrace=None):
+        # Check if the response is empty
+        if response and response.data == b'':
+            # Treat this as a retryable condition
+            return super().increment(method, url, response, error, _pool, _stacktrace)
+        return super().increment(method, url, response, error, _pool, _stacktrace)
 
 
 class MyanimelistException(Exception):
@@ -60,7 +70,7 @@ def parse_priority(priority: str) -> int:
 def get_mal_part(username: str, **kwargs) -> list:
     """
     Gets a MAL list with a username.
-    Kwargs reffer to the arguments `(sort=3,x='w') -> ?sort=3&x=w`.
+    Kwargs refer to the arguments `(sort=3,x='w') -> ?sort=3&x=w`.
     If a list is longer than 300 entries, you must set an offset.
     """
     url = MALURL.format(user=username)
