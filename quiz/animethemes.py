@@ -111,11 +111,11 @@ def _query_api(path: str, params: Dict[str, GET_PARAM]) -> dict:
     r = SESSION.get(BASE + path, params=params)
 
     if r.status_code == 429:
-        raise AnimeThemesThrottled(int(r.headers["Retry-After"]))
+        raise AnimeThemesThrottled(int(r.headers.get("Retry-After", 30)))
     elif r.status_code in (502, 504):
         raise AnimeThemesDown(r.status_code)
-    else:
-        r.raise_for_status()
+    elif r.status_code != 200:
+        raise Exception(r.status_code)
 
     return r.json()
 
