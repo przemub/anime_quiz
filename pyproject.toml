@@ -1,5 +1,5 @@
 [tool.setuptools]
-packages = ["quiz", "quiz.migrations", "quiz.templates.quiz", "quiz.static.quiz", "anime_quiz"]
+packages = ["quiz", "quiz.migrations", "quiz.tests", "quiz.templates.quiz", "quiz.static.quiz", "anime_quiz"]
 include-package-data = true
 
 [tool.setuptools_scm]
