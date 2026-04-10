@@ -36,7 +36,7 @@ services:
     env_file:
       - .env
   redis:
-    image: valkey/valkey:8.0
+    image: valkey/valkey:8
     command:
       - "valkey-server"
       - "--appendonly"
