@@ -1,4 +1,4 @@
-#      Copyright (c) 2021-24 Przemysław Buczkowski
+#      Copyright (c) 2021-26 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -20,10 +20,7 @@ from django.test import TestCase, override_settings
 
 from quiz.animethemes import request_anime
 from quiz.views import UserThemesView, TaskStatus
-
-
-def _make_theme(mal_id: int, anime_title: str):
-    return {"mal_id": mal_id, "anime_title": anime_title}
+from quiz.tests.helpers import make_mal_theme
 
 
 @override_settings(
@@ -47,7 +44,7 @@ class MyAnimeListTestCase(TestCase):
             UserThemesView._get_user_themes("quiz_moe_testing", [1])
         mock_task.assert_called_once()
         self.assertEqual(
-            [_make_theme(5114, "Fullmetal Alchemist: Brotherhood")],
+            [make_mal_theme(5114, "Fullmetal Alchemist: Brotherhood")],
             [theme for theme, _priority in mock_task.call_args.args[0]]
         )
 
@@ -62,9 +59,9 @@ class MyAnimeListTestCase(TestCase):
         mock_task.assert_called_once()
         self.assertEqual(
             [
-                _make_theme(17074, "Monogatari Series: Second Season"),
-                _make_theme(9253, "Steins;Gate"),
-                _make_theme(7785, "Yojouhan Shinwa Taikei"),
+                make_mal_theme(17074, "Monogatari Series: Second Season"),
+                make_mal_theme(9253, "Steins;Gate"),
+                make_mal_theme(7785, "Yojouhan Shinwa Taikei"),
             ],
             sorted((theme for theme, _priority in mock_task.call_args.args[0]), key=lambda theme: theme["anime_title"])
         )
@@ -80,10 +77,10 @@ class MyAnimeListTestCase(TestCase):
         mock_task.assert_called_once()
         self.assertEqual(
             [
-                _make_theme(5114, "Fullmetal Alchemist: Brotherhood"),
-                _make_theme(17074, "Monogatari Series: Second Season"),
-                _make_theme(9253, "Steins;Gate"),
-                _make_theme(7785, "Yojouhan Shinwa Taikei"),
+                make_mal_theme(5114, "Fullmetal Alchemist: Brotherhood"),
+                make_mal_theme(17074, "Monogatari Series: Second Season"),
+                make_mal_theme(9253, "Steins;Gate"),
+                make_mal_theme(7785, "Yojouhan Shinwa Taikei"),
             ],
             sorted((theme for theme, _priority in mock_task.call_args.args[0]), key=lambda theme: theme["anime_title"])
         )

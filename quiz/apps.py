@@ -1,4 +1,4 @@
-#      Copyright (c) 2021 Przemysław Buczkowski
+#      Copyright (c) 2021-26 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -15,8 +15,21 @@
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 
+import bugsnag
 from django.apps import AppConfig
+
+
+def _add_quiz_context(event):
+    if not hasattr(event.request_config, "django_request"):
+        return
+    request = event.request_config.django_request
+    quiz_context = getattr(request, "_quiz_context", None)
+    if quiz_context:
+        event.add_tab("quiz", quiz_context)
 
 
 class QuizConfig(AppConfig):
     name = "quiz"
+
+    def ready(self):
+        bugsnag.before_notify(_add_quiz_context)

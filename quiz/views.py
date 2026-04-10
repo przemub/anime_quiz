@@ -1,4 +1,4 @@
-#      Copyright (c) 2021-24 Przemysław Buczkowski
+#      Copyright (c) 2021-26 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -14,6 +14,7 @@
 #
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
+import logging
 import random as random_module
 
 from django.core.cache import cache
@@ -26,6 +27,7 @@ from .mal import get_raw_mal, filter_mal, MAL_OPTIONS, MyanimelistException
 from .tasks import GetUserThemesTask, find_cached_lyrics
 
 random = random_module.SystemRandom()
+logger = logging.getLogger()
 
 
 class TaskStatus(Exception):
@@ -102,6 +104,41 @@ class UserThemesView(View):
             raise TaskStatus(f"User {user} has been enqueued just now.")
 
     @staticmethod
+    def _choose_theme(themes: list, last_chosen: list) -> dict:
+        """Choose a theme avoiding recently played ones.
+
+        Excludes the last len(themes) // 2 played songs from the
+        candidates. If all themes have been played recently, picks
+        randomly from the full list. It should happen only when
+        len(themes) < 3.
+
+        Appends the chosen theme's ID to last_chosen in place.
+        """
+        exclude_count = len(themes) // 2
+        recently_played = set(last_chosen[-exclude_count:]) if exclude_count > 0 else set()
+        new_themes = [
+            theme for theme in themes if theme["id"] not in recently_played
+        ]
+
+        logger.info(
+            "Theme selection: %d themes, %d candidates, %d last_chosen",
+            len(themes), len(new_themes), len(last_chosen),
+        )
+
+        if new_themes:
+            theme = random.choice(new_themes)
+        else:
+            if len(themes) > 3:
+                logger.warning(
+                    "Repeat avoidance failed with %d themes, "
+                    "last_chosen has %d entries",
+                    len(themes), len(last_chosen),
+                )
+            theme = random.choice(themes)
+        last_chosen.append(theme["id"])
+        return theme
+
+    @staticmethod
     def _apply_themes_filters(
         themes, openings, endings, spoilers, nsfw, karaoke
     ):
@@ -157,6 +194,19 @@ class UserThemesView(View):
         return themes
 
     def get(self, request):
+        """Choose a random theme song for the user to guess.
+
+        Song selection works as follows:
+        1. Fetch theme lists for each requested user from the cache.
+        2. For each user (in random order), apply filters (OP/ED, spoilers,
+           NSFW, karaoke). Pick the first user whose list is non-empty
+           after filtering. Fall back to przemub's list if none match.
+        3. Exclude the last len(user themes) // 2 played songs (tracked in
+           the session) to avoid immediate repeats. If all songs have been
+           played recently, pick randomly from the full list.
+           This should happen only when one of the users has a very small
+           list (<3 themes).
+        """
         users = request.GET.getlist("user", ["przemub"])
 
         # Get theme filters
@@ -186,13 +236,18 @@ class UserThemesView(View):
             if not statuses:
                 statuses = [1, 2]
 
+        # Debugging context
+        request._quiz_context = {
+            "users": users,
+        }
+
         users_shuffled = random.sample(users, len(users))
         themes = None
         alert = ""
         enqueued_users = []
-        playing_user = "przemub"
 
-        # Queue all users and choose a random user list to choose an anime from
+        # Queue all users and collect available theme lists
+        available_users = []
         for user in users_shuffled:
             try:
                 user_themes = self._get_user_themes(user, statuses)
@@ -202,10 +257,12 @@ class UserThemesView(View):
                 alert += f"User {user} does not exist. <br />"
             else:
                 if user_themes:
-                    playing_user = user
-                    themes = user_themes
+                    available_users.append((user, user_themes))
                 else:
                     alert += f"User {user} has an empty list. <br />"
+
+        request._quiz_context["available_users"] = [u for u, _ in available_users]
+        request._quiz_context["enqueued_users"] = enqueued_users
 
         if enqueued_users:
             plural = len(enqueued_users) > 1
@@ -213,25 +270,23 @@ class UserThemesView(View):
                 f"User{'s' if plural else ''} "
                 f"{', '.join(enqueued_users)} "
                 f"{'have' if plural else 'has'} been enqueued.<br />"
-                "For the time being, choosing a theme from "
-                f"{playing_user}'s list."
             )
 
-            if themes is None:
-                try:
-                    themes = self._get_user_themes("przemub", statuses)
-                except TaskStatus as status:
-                    return HttpResponse(
-                        "quiz.moe is temporarily unavailable. "
-                        "Come back in a minute!<br>Message:<br> "
-                        + status.args[0],
-                        status=503,
-                    )
+        # Try each user's themes with filters applied
+        for user, user_themes in available_users:
+            filtered = self._apply_themes_filters(
+                user_themes, openings, endings, spoilers, nsfw, karaoke
+            )
+            if filtered:
+                themes = filtered
+            else:
+                alert += f"After filtering, user {user} has an empty list. <br />"
 
+        # Fallback to przemub's list
         if not themes:
             alert += "Playing przemub's list."
             try:
-                themes = self._get_user_themes("przemub", statuses)
+                przemub_themes = self._get_user_themes("przemub", statuses)
             except TaskStatus as status:
                 return HttpResponse(
                     "quiz.moe is temporarily unavailable. "
@@ -239,22 +294,14 @@ class UserThemesView(View):
                     + status.args[0],
                     status=503,
                 )
+            themes = self._apply_themes_filters(
+                przemub_themes, openings, endings, spoilers, nsfw, karaoke
+            )
 
-        themes = self._apply_themes_filters(
-            themes, openings, endings, spoilers, nsfw, karaoke
-        )
-
-        # Remove themes which appeared lastly, and choose one left!
         last_chosen = request.session.get("last_chosen", [])
-        last_chosen_max_count = len(themes) // 2 - 1
-        last_chosen = last_chosen[-last_chosen_max_count:]
-
-        last_chosen_set = set(last_chosen)
-        themes = [
-            theme for theme in themes if theme["id"] not in last_chosen_set
-        ]
-        theme = random.choice(themes)
-        last_chosen.append(theme["id"])
+        request._quiz_context["themes_count"] = len(themes)
+        request._quiz_context["last_chosen_count"] = len(last_chosen)
+        theme = self._choose_theme(themes, last_chosen)
         request.session["last_chosen"] = last_chosen
 
         # Get a random version of the theme
