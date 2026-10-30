@@ -126,20 +126,13 @@ class TaskBase:
                         kwargs
                     )
                     self.add_tasks([(kwargs, self._current_priority)])
-                except Exception as e:  # noqa
+                except Exception:  # noqa
                     logger.exception(
                         "Failed to execute task %s, kwargs %s!",
                         self.name,
-                        kwargs
+                        kwargs,
+                        extra={"task_name": self.name, "task_kwargs": kwargs},
                     )
-                    if settings.BUGSNAG is not None:
-                        bugsnag.notify(
-                            e,
-                            metadata={
-                                "task": self.name,
-                                "task_kwargs": kwargs
-                            }
-                        )
                 else:
                     logger.info(
                         "Executed task %s, kwargs %s successfully!",

@@ -1,4 +1,4 @@
-#      Copyright (c) 2021-24 Przemysław Buczkowski
+#      Copyright (c) 2021-26 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -15,8 +15,11 @@
 #      You should have received a copy of the GNU Affero General Public License
 #      along with Anime Quiz.  If not, see <https://www.gnu.org/licenses/>.
 from .settings import *  # noqa
+from anime_quiz.logging_config import build_logging
 
 DEBUG = False
+
+LOGGING = build_logging(json_logs=True, bugsnag=BUGSNAG is not None)
 
 if os.environ.get("QUIZ_SECRET_KEY", None):
     SECRET_KEY = os.environ["QUIZ_SECRET_KEY"]

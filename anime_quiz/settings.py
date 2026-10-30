@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-#      Copyright (c) 2021-2024 Przemysław Buczkowski
+#      Copyright (c) 2021-2026 Przemysław Buczkowski
 #
 #      This file is part of Anime Quiz.
 #
@@ -45,38 +45,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "level": "DEBUG",
-            "filters": None,
-            "class": "logging.StreamHandler",
-            "formatter": "default",
-        },
-        "bugsnag": {
-            "level": "WARNING",
-            "class": "bugsnag.handlers.BugsnagHandler",
-            "formatter": "default",
-        },
-    },
-    "formatters": {
-        "default": {
-            "format": "{levelname} {module} {message}",
-            "style": "{",
-        }
-    },
-    "loggers": {
-        "root": {
-            "handlers": ["console"],
-            "level": "INFO",
-        },
-        "django.request": {
-            "level": "ERROR",
-        },
-    },
-}
+from anime_quiz.logging_config import build_logging, configure_structlog
+
+configure_structlog()
+LOGGING = build_logging(
+    json_logs=not DEBUG,
+    bugsnag="QUIZ_BUGSNAG" in os.environ,
+)
 
 # Application definition
 
@@ -87,6 +62,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_structlog",
     "quiz",
 ]
 
@@ -98,6 +74,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Binds request_id/user_id/ip onto every log record within the request.
+    "django_structlog.middlewares.RequestMiddleware",
 ]
 
 ROOT_URLCONF = "anime_quiz.urls"
@@ -195,7 +173,6 @@ if "QUIZ_BUGSNAG" in os.environ:
         "ignore_classes": ["django.http.Http404"],
         "release_stage": "development"
     }
-    LOGGING["loggers"]["root"]["handlers"].append("bugsnag")
     MIDDLEWARE.append("bugsnag.django.middleware.BugsnagMiddleware")
 
 # Redis database used as a queue for tasks.

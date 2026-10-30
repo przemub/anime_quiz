@@ -17,9 +17,16 @@
 
 import bugsnag
 from django.apps import AppConfig
+from structlog.contextvars import get_contextvars
 
 
 def _add_quiz_context(event):
+    # Correlate the Bugsnag event with the structured logs for the same
+    # request: django-structlog binds request_id into the contextvars.
+    request_id = get_contextvars().get("request_id")
+    if request_id:
+        event.add_tab("trace", {"request_id": request_id})
+
     if not hasattr(event.request_config, "django_request"):
         return
     request = event.request_config.django_request
