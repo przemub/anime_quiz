@@ -42,7 +42,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "build==1.2.2.post1",
-    "black==24.10.0"
+    "black==26.10.1"
 ]
 gcp = [
     "django-google-cloud-tasks~=2.17.0",
